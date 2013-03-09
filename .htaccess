@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+  # RewriteBase /
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+</IfModule>
+
+<IfModule mod_php5.c>
+  php_value error_reporting 2147483647
+  php_value display_errors 1
+  php_value display_startup_errors 1
+  php_value SMTP mail.neti.ee
+  php_value sendmail_from tambet@korteriyhistu.net
+</IfModule>
