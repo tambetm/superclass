@@ -1,5 +1,8 @@
 <?php
-define('NAMESPACE_SEPARATOR', '_');
+
+// include config
+require_once('config/php.php');
+require_once('config/framework.php');
 
 // set up class autoloading
 function __autoload($class_name) {
@@ -8,16 +11,17 @@ function __autoload($class_name) {
   // don't report error when file read fails. we'll get error anyway for non-existent class.
   @include_once($filename);
 }
-
+/*
 // set up error handling.
-$errorhandler = new core_ErrorHandler();
+$error_handler_class = ERROR_HANDLER_CLASS; 
+$errorhandler = new $error_handler_class();
 set_error_handler(array($errorhandler, 'handle_error'));
 set_exception_handler(array($errorhandler, 'handle_exception'));
 register_shutdown_function(array($errorhandler, 'handle_fatal_error'));
-
+*/
 // extract class name and method name from URL path
-$url = $_SERVER['PATH_INFO'];
-$context = new core_Context($url);
+$context_class = CONTEXT_CLASS;
+$context = new $context_class();
 $class = $context->get_controller_class();
 $method = $context->get_controller_method();
 

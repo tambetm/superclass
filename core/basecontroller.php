@@ -21,9 +21,15 @@ class core_BaseController {
     $model_class = $this->context->get_model_class();
     $table = $this->context->get_database_table();
 
-    // instantiate model, view and call render().
+    // instantiate model and view
     $model = new $model_class($table);
     $view = new $view_class($model);
-    call_user_func_array(array($view, 'render'), $arguments);  
+
+    // instantiate page with view rendered for default region
+    $page_class = $this->context->get_page_class();
+    $page = new $page_class(array(DEFAULT_REGION => $view));
+
+    // render page
+    call_user_func_array(array($page, 'render'), $arguments);  
   }
 }

@@ -18,7 +18,7 @@ class views_Table extends core_BaseView {
   }
 
   function render() {
-    $this->_table();
+    $this->_table(array('class' => 'table table-bordered table-hover'));
   }
 
   function table() {
