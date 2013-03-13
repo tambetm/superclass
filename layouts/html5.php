@@ -1,8 +1,8 @@
 <?php
 
-abstract class pages_HTML5 extends core_BasePage {
+abstract class layouts_HTML5 extends core_BaseLayout {
 
-  protected $charset = 'utf-8';
+  public $charset = 'utf-8';
 
   public function render() {
     $this->doctype();
@@ -20,13 +20,13 @@ abstract class pages_HTML5 extends core_BasePage {
   }
 
   public function head() {
-    $this->_head_title();
+    $this->_title();
     $this->head_metas();
     $this->head_links();
     $this->head_scripts();
   }
 
-  abstract public function head_title();
+  abstract public function title();
 
   public function head_metas() {
     $this->_meta(array('charset' => $this->charset));

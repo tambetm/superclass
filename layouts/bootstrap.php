@@ -1,15 +1,15 @@
 <?php
 
-class pages_Bootstrap extends pages_HTML5 {
+class layouts_Bootstrap extends layouts_HTML5 {
 
-  protected $viewport = 'width=device-width, initial-scale=1.0';
+  public $viewport = 'width=device-width, initial-scale=1.0';
 
   public function head() {
-    $this->_base(array('href' => core_Context::base_url()));
+    $this->_base(array('href' => core_URL::base_url()));
     parent::head();
   }
 
-  public function head_title() {
+  public function title() {
     echo 'Bootstrap, from Twitter';
   }
 
@@ -25,7 +25,7 @@ class pages_Bootstrap extends pages_HTML5 {
 
   public function body() {
     $this->_navbar('div', array('class' => 'navbar navbar-inverse navbar-static-top'));
-    $this->main();
+    $this->_body_content('div', array('class' => 'container', 'id' => 'content'));
     parent::body();
   }
 
@@ -39,8 +39,8 @@ class pages_Bootstrap extends pages_HTML5 {
 
   public function navbar_container() {
     $this->_navbar_button(array('type' => 'button', 'class' => 'btn btn-navbar', 'data-toggle' => 'collapse', 'data-target' => '.nav-collapse'));
-    $this->_brand('a', array('class' => 'brand', 'href' => core_Context::base_url()));
-    $this->_global_menu('div', array('class' => 'nav-collapse collapse'));
+    $this->_navbar_brand('a', array('class' => 'brand', 'href' => core_URL::base_url()));
+    $this->_navbar_menu('div', array('class' => 'nav-collapse collapse'));
   }
 
   public function navbar_button() {
@@ -49,14 +49,19 @@ class pages_Bootstrap extends pages_HTML5 {
     $this->_span(array('class' => 'icon-bar'));
   }
 
-  public function brand() {
+  public function navbar_brand() {
     echo 'Project name';
   }
 
-  public function global_menu() {
+  public function navbar_menu() {
     $model = new models_GlobalMenu();
     $view = new views_Nav($model);
     $view->render();
+  }
+
+  public function body_content() {
+    $this->_title('h1');
+    $this->content();
   }
 
   public function body_scripts() {

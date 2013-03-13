@@ -1,6 +1,6 @@
 <?php
 
-abstract class core_BasePage extends core_HTMLTemplate {
+abstract class core_BaseLayout extends core_HTMLTemplate implements core_Layout {
 
   protected $views;
 

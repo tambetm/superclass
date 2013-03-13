@@ -9,7 +9,7 @@ class core_Context {
 
   public function __construct($url = null) {
     if (is_null($url)) {
-      $url = self::current_url();
+      $url = core_URL::current_url();
     }
     $this->url = $url;
     $this->segments = array_filter(explode('/', strtolower(trim($url, '/'))));
@@ -70,22 +70,8 @@ class core_Context {
     return str_replace(NAMESPACE_SEPARATOR, SCHEMA_SEPARATOR ,strtolower($this->class));
   }
 
-  public function get_page_class() {
-    return DEFAULT_PAGE_CLASS;
+  public function get_layout_class() {
+    return DEFAULT_LAYOUT_CLASS;
   }
 
-  public static function base_url() {
-    $current_url = trim(self::current_url(), '/');
-    $base_url = str_replace($current_url, '', $_SERVER['REQUEST_URI']);
-    return $base_url;
-  }
-
-  public static function current_url() {
-    
-    if (isset($_SERVER['PATH_INFO'])) {
-      return $_SERVER['PATH_INFO'];
-    } else {
-      return '/'.strtolower(DEFAULT_CONTROLLER).'/'.DEFAULT_METHOD;
-    }
-  }
 }

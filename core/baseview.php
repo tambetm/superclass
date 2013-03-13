@@ -1,6 +1,6 @@
 <?php
 
-abstract class core_BaseView extends core_HTMLTemplate {
+abstract class core_BaseView extends core_HTMLTemplate implements core_View {
 
   protected $model;
 

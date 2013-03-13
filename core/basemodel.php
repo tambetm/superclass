@@ -1,6 +1,6 @@
 <?php
 
-class core_BaseModel {
+class core_BaseModel implements core_Model {
 
   var $table;
   var $db;

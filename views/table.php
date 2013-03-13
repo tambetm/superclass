@@ -4,6 +4,7 @@ class views_Table extends core_BaseView {
 
   protected $meta;
   protected $data;
+  protected $config;
 
   // internal loop variables
   protected $field;
@@ -15,10 +16,16 @@ class views_Table extends core_BaseView {
     parent::__construct($model);
     $this->meta = $model->meta();
     $this->data = $model->data();
+    include('config/table.php');
+    $this->config = $config;
   }
 
   function render() {
-    $this->_table(array('class' => 'table table-bordered table-hover'));
+    $attributes = array();
+    if (isset($this->config['class'])) {
+      $attributes['class'] = $this->config['class'];
+    }
+    $this->_table($attributes);
   }
 
   function table() {

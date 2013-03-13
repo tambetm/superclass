@@ -1,6 +1,6 @@
 <?php
 
-class core_BaseController {
+class core_BaseController implements core_Controller {
 
   var $context;
 
@@ -25,11 +25,11 @@ class core_BaseController {
     $model = new $model_class($table);
     $view = new $view_class($model);
 
-    // instantiate page with view rendered for default region
-    $page_class = $this->context->get_page_class();
-    $page = new $page_class(array(DEFAULT_REGION => $view));
+    // instantiate layout with view rendered for default region
+    $layout_class = $this->context->get_layout_class();
+    $layout = new $layout_class(array(DEFAULT_REGION => $view));
 
-    // render page
-    call_user_func_array(array($page, 'render'), $arguments);  
+    // render layout
+    call_user_func_array(array($layout, 'render'), $arguments);  
   }
 }

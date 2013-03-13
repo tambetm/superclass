@@ -50,8 +50,8 @@ class core_ErrorHandler {
         while (ob_get_level() > 0) ob_end_clean();
         // don't send 500 header, because then IE doesn't show our content
         //header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-        // use cwd to include error page, because working directory has changed in case of fatal errors
-        require($this->cwd.'/errors/500.php');
+        $layout = new layouts_Error($exception);
+        $layout->render();
         exit;
       } else if (ini_get('display_errors')) { // display errors, if enabled
         echo nl2br($error);

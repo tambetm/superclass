@@ -1,8 +1,6 @@
 <?php
 
-abstract class core_HTMLTemplate {
-
-  abstract public function render();
+class core_HTMLTemplate {
 
   static private $level = 0;
 
@@ -75,7 +73,7 @@ abstract class core_HTMLTemplate {
   public function __call($name, $arguments) {
     // all internal methods must start with _
     if (strpos($name, '_') !== 0) {
-      throw new BadMethodCallException('Invalid method '.$name);
+      throw new BadMethodCallException("Invalid method '$name'");
     }
 
     // call the same method without leading underscore

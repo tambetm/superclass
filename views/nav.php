@@ -3,26 +3,32 @@
 class views_Nav extends core_BaseView {
 
   protected $menu;
+  protected $config;
+
+  /* internal loop variables */
   protected $url;
   protected $label;
 
   public function __construct($model) {
     parent::__construct($model);
     $this->menu = $model->data();
+    include('config/nav.php');
+    $this->config = $config;
   }
 
   public function render() {
     if (is_array($this->menu)) {
-      $this->_ul(array('class' => 'nav'));
+      $attributes = array();
+      if (isset($this->config['class'])) {
+        $attributes['class'] = $this->config['class'];
+      }
+      $this->_ul($attributes);
     }
   }
 
   public function ul() {
-    $current_url = core_Context::current_url();
-    echo $current_url;
+    $current_url = core_URL::current_url();
     foreach ($this->menu as $this->url => $this->label) {
-      echo $this->url;
-      echo 'a'.strpos($this->url, $current_url).'b'; 
       if (strpos($current_url, $this->url, 1) === 1) {
         $this->_ul_li(array('class' => 'active'));
       } else {
