@@ -11,7 +11,7 @@ class views_Nav extends core_BaseView {
 
   public function __construct($model) {
     parent::__construct($model);
-    $this->menu = $model->data();
+    $this->menu = $model->get();
     include('config/nav.php');
     $this->config = $config;
   }
@@ -42,6 +42,6 @@ class views_Nav extends core_BaseView {
   }
 
   public function ul_li_a() {
-    echo htmlspecialchars($this->label);
+    echo $this->escape($this->label);
   }
 }

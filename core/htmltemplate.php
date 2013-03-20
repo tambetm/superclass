@@ -4,7 +4,7 @@ class core_HTMLTemplate {
 
   static private $level = 0;
 
-  protected $self_closing_tags = array(
+  static private $self_closing_tags = array(
     'area' => 1,
     'base' => 1,
     //'basefont' => 1,
@@ -27,7 +27,7 @@ class core_HTMLTemplate {
     'wbr' => 1,
   );
 
-  protected $block_level_elements = array(
+  static private $block_level_elements = array(
     'address' => 1,
     'article' => 1,
     'aside' => 1,
@@ -112,7 +112,7 @@ class core_HTMLTemplate {
     if (isset($attributes)) {
       foreach ($attributes as $name => $value) {
         // escape attribute values for convenience
-        $attrs .= ' '.$name.'="'.htmlspecialchars($value).'"';
+        $attrs .= ' '.$name.'="'.$this->escape($value).'"';
       }
     }
 
@@ -126,11 +126,11 @@ class core_HTMLTemplate {
       self::$level++;
       call_user_func(array($this, $method));
       self::$level--;
-      if (isset($this->block_level_elements[$tag])) {
+      if (isset(self::$block_level_elements[$tag])) {
         $this->indent(self::$level);
       }
       echo "</$tag>";
-    } else if (isset($this->self_closing_tags[$tag])){
+    } else if (isset(self::$self_closing_tags[$tag])){
       echo "<$tag$attrs/>";
     } else {
       echo "<$tag$attrs></$tag>";
@@ -139,5 +139,9 @@ class core_HTMLTemplate {
 
   protected function indent($level) {
     echo "\n".str_repeat(' ', $level * 2);
+  }
+
+  public function escape($value) {
+    return htmlspecialchars($value);
   }
 }

@@ -15,7 +15,7 @@ class views_Table extends core_BaseView {
   function __construct($model) {
     parent::__construct($model);
     $this->meta = $model->meta();
-    $this->data = $model->data();
+    $this->data = $model->get($_GET);
     include('config/table.php');
     $this->config = $config;
   }
@@ -41,7 +41,7 @@ class views_Table extends core_BaseView {
 
   function table_thead_tr() {
     foreach ($this->meta as $this->field => $this->field_meta) {
-      $this->_table_thead_tr_th(array('class' => $this->field.' '.$this->field_meta['type']));
+      $this->_table_thead_tr_th(array('class' => $this->field.' '.$this->field_meta['udt_name']));
     }
   }
 
@@ -64,12 +64,12 @@ class views_Table extends core_BaseView {
 
   function table_tbody_tr() {
     foreach ($this->meta as $this->field => $this->field_meta) {
-      $this->_table_tbody_tr_td(array('class' => $this->field.' '.$this->field_meta['type']));
+      $this->_table_tbody_tr_td(array('class' => $this->field.' '.$this->field_meta['udt_name']));
     }
   }
 
   function table_tbody_tr_td() {
-    echo $this->row[$this->field];
+    echo $this->model->field($this->field)->output($this->row[$this->field]);
   }
 
   function table_tfoot() {

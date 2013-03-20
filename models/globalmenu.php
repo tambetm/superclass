@@ -11,7 +11,7 @@ class models_GlobalMenu {
     $this->menu = $menu;
   }
 
-  public function data() {
+  public function get() {
     return $this->menu;
   }
 }

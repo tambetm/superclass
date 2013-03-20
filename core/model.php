@@ -3,7 +3,7 @@
 interface core_Model {
   public function __construct($table);
   public function meta();
-  public function data();
+  public function get();
   /*
   public function select($where = $_GET);
   public function insert($data = $_POST);

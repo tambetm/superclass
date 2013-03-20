@@ -67,6 +67,7 @@ class core_ErrorHandler {
 
   function handle_fatal_error() {
     $error = @error_get_last();
+    chdir($this->cwd);
     if (!is_null($error) && $error['type'] == E_ERROR)
     {
       $this->handle_error($error['type'], $error['message'], $error['file'], $error['line']);
