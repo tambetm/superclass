@@ -14,4 +14,5 @@ interface interfaces_Type {
   public function format($value);
   public function validate(&$value);
   public function kind();
+  public function label();
 }

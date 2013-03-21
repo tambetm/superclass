@@ -4,11 +4,10 @@ class core_BaseModel implements interfaces_Model {
 
   protected $table;
   protected $db;
-  protected $meta_data;
+  protected $meta;
   protected $fields;
+  protected $primary_key;
 
-  protected $select = '*';
-  protected $distinct = '';
   protected $where = '';
   protected $order_by = '';
   protected $limit = 0;
@@ -24,67 +23,75 @@ class core_BaseModel implements interfaces_Model {
     return $this->meta;
   }
 
-  protected function escape_select($field, $expression) {
-    return "$expression as $field";
+  public function table() {
+    return $this->table;
   }
 
-  public function select($fields) {
-    if (is_array($fields)) {
-      $fields = array_map(array($this, 'escape_select'), array_keys($fields), $fields);
-      $this->select = implode(', ', $fields);
-    } else {
-      $this->select = $fields;
+  public function begin() {
+    return $this->db->execute('begin');
+  }
+
+  public function commit() {
+    return $this->db->execute('commit');
+  }
+
+  public function rollback() {
+    return $this->db->execute('rollback');
+  }
+
+  public function field($name) {
+    if (!isset($this->fields[$name])) {
+      $class = TYPE_NAMESPACE.NAMESPACE_SEPARATOR.str_replace(' ', '', ucwords($this->meta[$name]['data_type']));
+      $this->fields[$name] = new $class($this->meta[$name]);
+    }
+    return $this->fields[$name];
+  }
+
+  public function primary_key() {
+    if (!$this->primary_key) {
+      $this->primary_key = $this->db->primary_key($this->table);
+    }
+    return $this->primary_key;
+  }
+
+  protected function escape_value($field, $value) {
+    $type = $this->meta[$field]['udt_name'];
+    $value = $this->db->escape($value, $type);
+    return $value;
+  }
+
+  public function values($field, $value = null) {
+    if (is_array($field)) {
+      $fields = array_intersect_key($field, $this->meta);
+      $fields = array_map(array($this, 'escape_value'), array_keys($fields), $fields);
+      $this->fields = implode(', ', array_keys($fields));
+      $this->values = implode(', ', $fields);
+    } elseif (isset($this->meta[$field])) {
+      if ($this->values != '') $this->values .= ', ';
+      $this->values .= $this->escape_value($field, $value);
+      if ($this->fields != '') $this->fields .= ', ';
+      $this->fields .= $field;
     }
     return $this;
   }
 
-  public function select_count($field = '1', $alias = 'count') {
-    $this->select = "count($field) as $alias";
+  protected function escape_set($field, $value) {
+    $type = $this->meta[$field]['udt_name'];
+    $value = $this->db->escape($value, $type);
+    return "$field = $value";
+  }
+
+  public function set($field, $value = null) {
+    if (is_array($field)) {
+      $fields = array_intersect_key($field, $this->meta);
+      $fields = array_map(array($this, 'escape_set'), array_keys($fields), $fields);
+      $this->set = implode(', ', $fields);
+    } elseif (isset($this->meta[$field])) {
+      if ($this->set != '') $this->set .= ', ';
+      $this->set .= $this->escape_set($field, $value);
+    }
     return $this;
   }
-
-  public function select_sum($field, $alias = 'sum') {
-    $this->select = "sum($field) as $alias";
-    return $this;
-  }
-
-  public function select_max($field, $alias = 'max') {
-    $this->select = "max($field) as $alias";
-    return $this;
-  }
-
-  public function select_min($field, $alias = 'min') {
-    $this->select = "min($field) as $alias";
-    return $this;
-  }
-
-  public function select_avg($field, $alias = 'avg') {
-    $this->select = "avg($field) as $alias";
-    return $this;
-  }
-
-  public function distinct() {
-    $this->distinct = ' DISTINCT';
-    return $this;
-  }
-/*
-  public function from($table) {
-    $this->table = $table;
-    return $this;
-  }
-
-  public function join($table, $condition) {
-  }
-
-  public function left_join($table, $condition) {
-  }
-
-  public function right_join($table, $condition) {
-  }
-
-  public function full_join($table, $condition) {
-  }
-*/
 
   protected function escape_where($field, $value) {
     $type = $this->meta[$field]['udt_name'];
@@ -99,15 +106,11 @@ class core_BaseModel implements interfaces_Model {
   }
 
   public function where($field, $value = null) {
-    if (is_null($value)) {
-      if (is_array($field)) {
-        $fields = array_intersect_key($field, $this->meta);
-        $fields = array_map(array($this, 'escape_where'), array_keys($fields), $fields);
-        $this->where = implode(' AND ', $fields);
-      } else {
-        $this->where = $field;
-      }
-    } else {
+    if (is_array($field)) {
+      $fields = array_intersect_key($field, $this->meta);
+      $fields = array_map(array($this, 'escape_where'), array_keys($fields), $fields);
+      $this->where = implode(' AND ', $fields);
+    } elseif (isset($this->meta[$field])) {
       if ($this->where != '') $this->where .= ' AND ';
       $this->where .= $this->escape_where($field, $value);
     }
@@ -123,15 +126,11 @@ class core_BaseModel implements interfaces_Model {
   }
 
   public function order_by($field, $direction = null) {
-    if (is_null($direction)) {
-      if (is_array($field)) {
-        $fields = array_intersect_key($field, $this->meta);
-        $fields = array_map(array($this, 'escape_order_by'), array_keys($fields), $fields);
-        $this->order_by = implode(', ', $fields);
-      } else {
-        $this->order_by = $field;
-      }
-    } else {
+    if (is_array($field)) {
+      $fields = array_intersect_key($field, $this->meta);
+      $fields = array_map(array($this, 'escape_order_by'), array_keys($fields), $fields);
+      $this->order_by = implode(', ', $fields);
+    } elseif (isset($this->meta[$field])) {
       if ($this->order_by != '') $this->order_by .= ', ';
       $this->order_by .= $this->escape_order_by($field, $$direction);
     }
@@ -151,28 +150,40 @@ class core_BaseModel implements interfaces_Model {
     return $this;
   }
 
-  protected function sql_select() {
-    $sql = "SELECT$this->distinct $this->select FROM $this->table";
+  public function select($where = null, $order_by = null, $limit = 0, $offset = 0) {
+    if (!is_null($where)) $this->where($where);
+    if (!is_null($order_by)) $this->order_by($order_by);
+    if ($limit !== 0) $this->limit($limit);
+    if ($offset !== 0) $this->offset($offset);
+
+    $sql = "SELECT * FROM $this->table";
     if ($this->where != '') $sql .= " WHERE $this->where";
     if ($this->order_by != '') $sql .= " ORDER BY $this->order_by";
     if ($this->limit != 0) $sql .= " LIMIT $this->limit";
     if ($this->offset != 0) $sql .= " OFFSET $this->offset";
-    return $sql;
+
+    return $this->db->select($sql);
   }
 
-  public function get($where = null, $limit = null, $offset = null) {
-    if (!is_null($where)) $this->where($where);
-    if (!is_null($limit)) $this->limit($limit);
-    if (!is_null($offset)) $this->offset($offset);
-    $sql = $this->sql_select();
-    return $this->db->query($sql);
+  public function insert($data) {
+    $this->values($data);
+    $sql = "INSERT INTO $this->table ($this->fields) VALLUES ($this->values)";
+    return $this->db->execute($sql);
   }
 
-  public function field($name) {
-    if (!isset($this->fields[$name])) {
-      $class = 'types'.NAMESPACE_SEPARATOR.str_replace(' ', '', ucwords($this->meta[$name]['data_type']));
-      $this->fields[$name] = new $class($this->meta[$name]);
-    }
-    return $this->fields[$name];
+  public function update($data, $where) {
+    $this->set($data);
+    $this->where($where);
+    $sql = "UPDATE $this->table SET $this->set WHERE $this->where";
+    return $this->db->execute($sql);
+  }
+
+  public function delete($where) {
+    $this->where($where);
+    $sql = "DELETE FROM $this->table WHERE $this->where";
+    return $this->db->execute($sql);
+  }
+
+  public function validate($data) {
   }
 }

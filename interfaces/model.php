@@ -2,14 +2,17 @@
 
 interface interfaces_Model {
   public function __construct($table);
-  public function meta();
-  public function get();
-  /*
-  public function select($where = $_GET);
-  public function insert($data = $_POST);
-  public function update($data = $_POST, $where = $_GET);
-  public function delete($where = $_POST);
 
-  public function validate($data = $_POST);
-  */
+  // meta data
+  public function meta();
+  public function table();
+  public function field($name);
+  public function primary_key();
+
+  // query and manipulation
+  public function select($where = null, $order_by = null, $limit = null, $offset = null);
+  public function insert($data);
+  public function update($data, $where);
+  public function delete($where);
+  public function validate($data);
 }

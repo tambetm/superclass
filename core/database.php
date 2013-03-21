@@ -29,19 +29,24 @@ class core_Database {
     
     $this->connection = pg_connect($connection_string);
   }
-/*
-  public function meta_data($table) {
-    return pg_meta_data($this->connection, $table);
-  }
-*/
-  public function meta_data($table) {
-    if (strpos($table, '.') !== false) {
-      list($schema, $table) = explode('.', $table);
-    } else {
-      $schema = 'public';
-    }
 
+  protected function extract_schema($table) {
+    if (strpos($table, '.') !== false) {
+      return explode('.', $table);
+    } else {
+      return array('public', $table);
+    }
+  }
+  
+  public function meta_data($table) {
+    list($schema, $table) = $this->extract_schema($table);
     $result = pg_query_params($this->connection, 'select * from information_schema.columns where table_schema = $1 and table_name = $2', array($schema, $table));
+    return $this->fetch_hashed_rows($result, 'column_name');
+  }
+
+  public function primary_key($table) {
+    list($schema, $table) = $this->extract_schema($table);
+    $result = pg_query_params($this->connection, 'select kcu.* from information_schema.key_column_usage kcu join information_schema.table_constraints tc using (constraint_catalog, constraint_schema, constraint_name) where kcu.table_schema = $1 and kcu.table_name = $2 and tc.constraint_type = $3', array($schema, $table, 'PRIMARY KEY'));
     return $this->fetch_hashed_rows($result, 'column_name');
   }
 
@@ -54,7 +59,7 @@ class core_Database {
   }
 
   public function escape($value, $type = 'varchar') {
-    if (is_null($value)) {
+    if (is_null($value) || $value === '') {
       return 'null';
     }
     switch ($type) {
@@ -94,21 +99,19 @@ class core_Database {
     }
   }
 
-  public function query($sql) {
-    $res = pg_query($this->connection, $sql);
-    if ($res) {
-      return pg_fetch_all($res);
-    } else {
-      return false;
-    }
+  protected function query($sql) {
+    return pg_query($this->connection, $sql);
   }
 
-  public function select($table, $where = array()) {
-    if (count($where) == 0) {
-      return $this->query("select * from $table");
-    } else {
-      return pg_select($this->connection, $table, $where);
-    }
+  public function execute($sql) {
+    $result = $this->query($sql);
+    return pg_affected_rows($result);
+  }
+
+  public function select($sql) {
+    $result = $this->query($sql);
+    if (!$result) return false;
+    return pg_fetch_all($result);
   }
 
   public function __destruct() {

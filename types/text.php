@@ -12,6 +12,9 @@ class types_Text extends types_String {
     if ($this->is_nullable == 'NO') {
       $attributes['required'] = 'required';
     }
+    if ($this->is_updatable == 'NO') {
+      $attributes['readonly'] = 'readonly';
+    }
     $this->_textarea(array_merge($attributes, $attrs), null, $default);
   }
 

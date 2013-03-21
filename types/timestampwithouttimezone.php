@@ -7,6 +7,12 @@ class types_TimestampWithoutTimeZone extends core_BaseType {
       'type' => 'datetime-local',
       'name' => $name,
     );
+    if ($this->is_nullable == 'NO') {
+      $attributes['required'] = 'required';
+    }
+    if ($this->is_updatable == 'NO') {
+      $attributes['readonly'] = 'readonly';
+    }
     if ($default !== '') {
       $attributes['value'] = $default;
     }

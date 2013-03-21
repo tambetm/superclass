@@ -13,6 +13,9 @@ class types_String extends core_BaseType {
     if ($this->is_nullable == 'NO') {
       $attributes['required'] = 'required';
     }
+    if ($this->is_updatable == 'NO') {
+      $attributes['readonly'] = 'readonly';
+    }
     if ($default !== '') {
       $attributes['value'] = $default;
     }

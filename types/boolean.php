@@ -13,6 +13,9 @@ class types_Boolean extends core_BaseType {
       'name' => $name,
       'value' => 't',
     );
+    if ($this->is_updatable == 'NO') {
+      $attributes['readonly'] = 'readonly';
+    }
     if ($checked) {
       $attributes['checked'] = 'checked';
     }

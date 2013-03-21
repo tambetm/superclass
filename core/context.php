@@ -49,12 +49,15 @@ class core_Context {
     if (class_exists($view_class)) {
       return $view_class;
     }
-    $view_class = VIEW_NAMESPACE.NAMESPACE_SEPARATOR.ucfirst($this->method);
-    if (class_exists($view_class)) {
-      return $view_class;
-    } else {
-      return null;
+    return VIEW_NAMESPACE.NAMESPACE_SEPARATOR.ucfirst($this->method);
+  }
+
+  public function get_action_class() {
+    $action_class = ACTION_NAMESPACE.NAMESPACE_SEPARATOR.$this->class.ucfirst($this->method);
+    if (class_exists($action_class)) {
+      return $action_class;
     }
+    return ACTION_NAMESPACE.NAMESPACE_SEPARATOR.ucfirst($this->method);
   }
 
   public function get_model_class() {

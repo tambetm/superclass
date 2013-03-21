@@ -20,6 +20,12 @@ class types_Numeric extends core_BaseType {
       'max' => $this->max,
       'min' => $this->min,
     );
+    if ($this->is_nullable == 'NO') {
+      $attributes['required'] = 'required';
+    }
+    if ($this->is_updatable == 'NO') {
+      $attributes['readonly'] = 'readonly';
+    }
     if ($default !== '') {
       $attributes['value'] = $default;
     }

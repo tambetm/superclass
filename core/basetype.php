@@ -30,4 +30,8 @@ abstract class core_BaseType extends core_HTMLTemplate implements interfaces_Typ
       return true;
     }
   }
+
+  public function label() {
+    return ucfirst(str_replace('_', ' ', $this->column_name));
+  }
 }
