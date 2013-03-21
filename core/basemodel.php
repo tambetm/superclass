@@ -1,6 +1,6 @@
 <?php
 
-class core_BaseModel implements core_Model {
+class core_BaseModel implements interfaces_Model {
 
   protected $table;
   protected $db;
@@ -170,7 +170,7 @@ class core_BaseModel implements core_Model {
 
   public function field($name) {
     if (!isset($this->fields[$name])) {
-      $class = 'types'.NAMESPACE_SEPARATOR.ucfirst($this->meta[$name]['udt_name']);
+      $class = 'types'.NAMESPACE_SEPARATOR.str_replace(' ', '', ucwords($this->meta[$name]['data_type']));
       $this->fields[$name] = new $class($this->meta[$name]);
     }
     return $this->fields[$name];

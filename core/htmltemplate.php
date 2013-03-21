@@ -80,13 +80,18 @@ class core_HTMLTemplate {
     $method = substr($name, 1);
 
     // if third argument is true, then output tag only if it has contents
-    if (isset($arguments[2]) && $arguments[2] === true) {
-      ob_start();
-      self::$level++;
-      call_user_func(array($this, $method));
-      self::$level--;
-      $content = ob_get_clean();
-      if (!$content) return;
+    if (isset($arguments[2])) {
+      if ($arguments[2] === true) {
+        ob_start();
+        self::$level++;
+        call_user_func(array($this, $method));
+        self::$level--;
+        $content = ob_get_clean();
+        if (!$content) return;
+      } else {
+        // otherwise third argument is contents of the tag, which is automatically escaped
+        $content = $this->escape($arguments[2]);
+      }
     }
 
     // first non-array argument is tag name.

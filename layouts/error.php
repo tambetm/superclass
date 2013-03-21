@@ -20,7 +20,7 @@ class layouts_Error extends layouts_HTML5 {
   }
 
   public function message() {
-    echo nl2br($this->exception->getMessage());
+    echo nl2br($this->exception->getMessage()." in ".$this->exception->getFile()." line ".$this->exception->getLine());
   }
 
   public function stack() {

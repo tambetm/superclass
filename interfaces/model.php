@@ -1,6 +1,6 @@
 <?php
 
-interface core_Model {
+interface interfaces_Model {
   public function __construct($table);
   public function meta();
   public function get();

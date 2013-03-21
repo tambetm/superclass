@@ -8,3 +8,6 @@ ini_set('display_startup_errors', 1);
 // email configuration
 ini_set('SMTP', 'mail.neti.ee');
 ini_set('sendmail_from', 'tambet@korteriyhistu.net');
+
+// locale
+setlocale(LC_ALL, 'et_EE');

@@ -1,5 +1,5 @@
 <?php
 
-interface core_Controller {
+interface interfaces_Controller {
   public function __construct($context);
 }

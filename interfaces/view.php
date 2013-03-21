@@ -1,6 +1,6 @@
 <?php
 
-interface core_View {
+interface interfaces_View {
   public function __construct($model);
   public function render();
 }

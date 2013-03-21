@@ -1,17 +1,17 @@
 <?php
 
-class core_ErrorHandler {
+class core_ErrorHandler implements interfaces_ErrorHandler {
 
-  var $config;
-  var $cwd;
+  protected $config;
+  protected $cwd;
 
-  function __construct() {
+  public function __construct() {
     include('config/errorhandler.php');
     $this->config = $config;
     $this->cwd = getcwd();
   }
  
-  var $error_levels = array
+  static public $error_levels = array
   (
     E_ERROR => 'PHP Error',
     E_WARNING => 'PHP Warning',
@@ -31,10 +31,10 @@ class core_ErrorHandler {
     //E_ALL => ???,
   );
 
-  function handle_exception($exception, $errno = E_ERROR) {
+  public function handle_exception($exception, $errno = E_ERROR) {
     // check that errors haven't been suppressed with @ modifier
     if ($errno & error_reporting()) {
-      $error = $exception->getMessage()."\n".$exception->getTraceAsString();
+      $error = $exception->getMessage()." in ".$exception->getFile()." line ".$exception->getLine()."\n".$exception->getTraceAsString();
 
       // log error
       error_log($error);
@@ -59,13 +59,13 @@ class core_ErrorHandler {
     }
   }
 
-  function handle_error($errno, $errstr, $errfile, $errline) {
+  public function handle_error($errno, $errstr, $errfile, $errline) {
     // create exception based on the error
-    $exception = new ErrorException($this->error_levels[$errno].': '.$errstr, $errno, 0, $errfile, $errline);
+    $exception = new ErrorException(self::$error_levels[$errno].': '.$errstr, $errno, 0, $errfile, $errline);
     $this->handle_exception($exception, $errno);
   }
 
-  function handle_fatal_error() {
+  public function handle_fatal_error() {
     $error = @error_get_last();
     chdir($this->cwd);
     if (!is_null($error) && $error['type'] == E_ERROR)

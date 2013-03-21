@@ -1,6 +1,6 @@
 <?php
 
-class core_BaseController implements core_Controller {
+class core_BaseController implements interfaces_Controller {
 
   var $context;
 

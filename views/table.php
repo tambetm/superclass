@@ -64,12 +64,12 @@ class views_Table extends core_BaseView {
 
   function table_tbody_tr() {
     foreach ($this->meta as $this->field => $this->field_meta) {
-      $this->_table_tbody_tr_td(array('class' => $this->field.' '.$this->field_meta['udt_name']));
+      $this->_table_tbody_tr_td(array('class' => $this->field.' '.$this->model->field($this->field)->kind()));
     }
   }
 
   function table_tbody_tr_td() {
-    echo $this->model->field($this->field)->output($this->row[$this->field]);
+    echo $this->model->field($this->field)->format($this->row[$this->field]);
   }
 
   function table_tfoot() {
