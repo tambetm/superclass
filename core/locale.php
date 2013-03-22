@@ -18,6 +18,10 @@ class Locale {
     return locale_get_primary_language($this->locale);
   }
 
+  public function get_charset() {
+    return ini_get('default_charset');
+  }
+
   public function __set($name, $value) {
     $this->options[$name] = $value;
   }

@@ -3,6 +3,7 @@ namespace core;
 
 use interfaces\Model;
 use core\Database;
+use core\String;
 
 class BaseModel implements Model {
 
@@ -31,16 +32,8 @@ class BaseModel implements Model {
     return $this->table;
   }
 
-  public function begin() {
-    return $this->db->execute('begin');
-  }
-
-  public function commit() {
-    return $this->db->execute('commit');
-  }
-
-  public function rollback() {
-    return $this->db->execute('rollback');
+  public function db() {
+    return $this->db;
   }
 
   public function field($name) {
@@ -188,6 +181,15 @@ class BaseModel implements Model {
     return $this->db->execute($sql);
   }
 
-  public function validate($data) {
+  public function validate(&$data, $prefix = '') {
+    $data = array_intersect_key($data, $this->meta);
+    $success = true;
+    foreach($this->meta as $name => $meta) {
+      $field = $this->field($name);
+      if (!$field->validate($data[$name], $prefix)) {
+        $success = false;
+      }
+    }
+    return $success;
   }
 }

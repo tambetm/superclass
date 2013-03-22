@@ -3,6 +3,7 @@ namespace types;
 
 use core\BaseType;
 use core\Locale;
+use core\Messages;
 
 class Numeric extends BaseType {
 
@@ -24,9 +25,11 @@ class Numeric extends BaseType {
       'max' => $this->max,
       'min' => $this->min,
     );
+    /*
     if ($this->is_nullable == 'NO') {
       $attributes['required'] = 'required';
     }
+    */
     if ($this->is_updatable == 'NO') {
       $attributes['readonly'] = 'readonly';
     }
@@ -42,14 +45,28 @@ class Numeric extends BaseType {
     }
   }
 
-  public function validate(&$value) {
-    if (!parent::validate($value)) return false;
+  public function validate(&$value, $prefix = '') {
+    if (!parent::validate($value, $prefix)) return false;
+
+    if (is_null($value) || $value === '') return true;
 
     // support both decimal point and monetary decimal point as separator
     $pattern = '/^[+-]?\d+['.$this->locale->decimal_point.$this->locale->mon_decimal_point.']?\d*$/';
-    if (!preg_match($pattern, $value)) return false;
-    if ($value > $this->max) return false;
-    if ($value < $this->min) return false;
+    if (!preg_match($pattern, $value)) {
+      Messages::error_item(sprintf(_('%s must be a number.'), $this->label($prefix)));
+      return false;
+    }
+
+    if ($value > $this->max) {
+      Messages::error_item(sprintf(_('%s cannot be bigger than %s.'), $this->label($prefix), $this->max));
+      return false;
+    }
+
+    if ($value < $this->min) {
+      Messages::error_item(sprintf(_('%s cannot be smaller than %s.'), $this->label($prefix), $this->min));
+      return false;
+    }
+
     return true;
   }
 

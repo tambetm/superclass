@@ -36,6 +36,7 @@ class HTML {
     'blockquote' => 1,
     'body' => 1,
     'canvas' => 1,
+    'colgroup' => 1,
     'dd' => 1,
     'div' => 1,
     'dl' => 1,

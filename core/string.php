@@ -10,4 +10,8 @@ class String {
   public static function uncamelize($word) {
     return strtolower(preg_replace_callback('/([a-z])([A-Z])/', function ($matches) {return "$matches[1]_$matches[2]";}, $word));
   }
+
+  public static function humanize($word) {
+    return ucfirst(str_replace('_', ' ', $word));
+  }
 }

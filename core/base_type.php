@@ -2,6 +2,7 @@
 namespace core;
 
 use core\HTML;
+use core\String;
 use interfaces\Type;
 
 abstract class BaseType extends HTML implements Type {
@@ -35,15 +36,16 @@ abstract class BaseType extends HTML implements Type {
     return $value;
   }
 
-  public function validate(&$value) {
-    if (is_null($value) || $value === '') {
-      return $this->is_nullable == 'YES';
-    } else {
-      return true;
-    }
+  public function validate(&$value, $prefix = '') {
+    if ((is_null($value) || $value === '') && $this->is_nullable == 'NO') {
+      Messages::error_item(sprintf(_('%s cannot be empty.'), $this->label($prefix)));
+      return false;
+    } 
+    
+    return true;
   }
 
-  public function label() {
-    return ucfirst(str_replace('_', ' ', $this->column_name));
+  public function label($prefix = '') {
+    return $prefix.String::humanize($this->column_name);
   }
 }

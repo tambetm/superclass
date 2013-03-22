@@ -1,61 +1,79 @@
 <?php
 namespace core;
 
-class Messages {
-  const MESSAGES_SESSION_NAME = 'core\Messages::messages';
+use core\Session;
 
-  static public function message($text, $type = 'error', $important = true) {
-    if (isset($_SESSION[self::MESSAGES_SESSION_NAME])) {
-      $messages = $_SESSION[self::MESSAGES_SESSION_NAME];
-    } else {
-      $messages = array();
-    }
-    $messages[] = array(
-      'type' => $type,
-      'text' => $text,
-      'important' => $important,
+class Messages {
+
+  static public $headings;
+  static protected $session;
+
+  static public function init() {
+    self::$session = Session::instance();
+    self::$headings = array(
+      'error' => _('Error'),
+      'alert' => _('Alert'),
+      'info' => _('Info'),
+      'success' => _('Success'),
+      'log' => _('Log'),
+      'debug' => _('Debug'),
     );
-    $_SESSION[self::MESSAGES_SESSION_NAME] = $messages;
+  }
+
+  static public function message($type, $title, $text = null) {
+    // make up a message
+    $message = array(
+      'type' => $type,
+      'title' => $title,
+      'text' => $text,
+    );
+
+    // add items, if they exist
+    $message_items = self::$session->message_items;
+    if (isset($message_items[$type])) {
+      $message['items'] = $message_items[$type];
+      unset($message_items[$type]);
+      self::$session->message_items = $message_items;
+    }
+
+    // add message to list
+    $messages = self::$session->messages;
+    $messages[] = $message;
+    self::$session->messages = $messages;
+  }
+
+  static public function item($type, $message) {
+    // add item to list
+    $message_items = self::$session->message_items;
+    $message_items[$type][] = $message;
+    self::$session->message_items = $message_items;
   }
 
   static public function messages() {
-    if (isset($_SESSION[self::MESSAGES_SESSION_NAME])) {
-      $messages = $_SESSION[self::MESSAGES_SESSION_NAME];
-    } else {
-      $messages = null;
+    // pick up remaining items
+    $message_items = self::$session->message_items;
+    if (is_array($message_items)) {
+      foreach($message_items as $type => $items) {
+        self::message($type, self::$headings[$type]);
+      }
     }
-    unset($_SESSION[self::MESSAGES_SESSION_NAME]);
+
+    // return messages and purge them from session
+    $messages = self::$session->messages;
+    unset(self::$session->messages);
     return $messages;
   }
 
-  static public function error($message, $important = false) {
-    self::message($message, 'error', $important);
-  }
-
-  static public function alert($message, $important = false) {
-    self::message($message, 'alert', $important);
-  }
-
-  static public function info($message, $important = false) {
-    self::message($message, 'info', $important);
-  }
-
-  static public function success($message, $important = false) {
-    self::message($message, 'success', $important);
-  }
-
-  static public function log($message, $important = false) {
-    self::message($message, 'log', $important);
-  }
-
-  static public function debug($message, $important = false) {
-    self::message($message, 'debug', $important);
-  }
-
-/*
   static public function __callStatic($name, $arguments) {
-    array_splice($arguments, 1, 0, $name);
-    call_user_func_array('self::message', $arguments);
+    // if ends with _item
+    if (strpos($name, '_item') === strlen($name) - 5) {
+      array_unshift($arguments, substr($name, 0, strlen($name) - 5));
+      call_user_func_array('self::item', $arguments);
+    } else {
+      array_unshift($arguments, $name);
+      call_user_func_array('self::message', $arguments);
+    }
   }
-*/
 }
+
+Messages::init();

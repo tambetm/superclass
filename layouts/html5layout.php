@@ -4,14 +4,18 @@ namespace layouts;
 use core\BaseLayout;
 use core\Locale;
 
-abstract class HTML5 extends BaseLayout {
+abstract class HTML5Layout extends BaseLayout {
 
-  public $charset = 'utf-8';
+  protected $locale;
+
+  public function __construct($view) {
+    parent::__construct($view);
+    $this->locale = Locale::instance();
+  }
 
   public function render() {
     $this->doctype();
-    $locale = Locale::instance();
-    $this->_html(array('lang' => $locale->get_primary_language()));
+    $this->_html(array('lang' => $this->locale->get_primary_language()));
   }
 
   public function doctype() {
@@ -33,7 +37,7 @@ abstract class HTML5 extends BaseLayout {
   abstract public function title();
 
   public function head_metas() {
-    $this->_meta(array('charset' => $this->charset));
+    $this->_meta(array('charset' => $this->locale->get_charset()));
   }
 
   public function head_links() {

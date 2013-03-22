@@ -2,6 +2,7 @@
 namespace types;
 
 use core\BaseType;
+use core\Messages;
 
 class Boolean extends BaseType {
 
@@ -25,10 +26,15 @@ class Boolean extends BaseType {
     $this->_input(array_merge($attributes, $attrs));
   }
 
-  public function validate(&$value) {
-    if (!parent::validate($value)) return false;
+  public function validate(&$value, $prefix = '') {
+    if (!parent::validate($value, $prefix)) return false;
 
-    return $value == 't' || $value == 'f';
+    if (!($value == 't' || $value == 'f')) {
+      Messages::error_item(sprintf(_('%s can only have value t or f.'), $this->label($prefix)));
+      return false;
+    }
+
+    return true;
   }
 
   public function kind() {

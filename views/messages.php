@@ -5,18 +5,11 @@ use core\HTML;
 use core\Messages as core_Messages;
 
 class Messages extends HTML {
-  static public $headings = array(
-      'error' => 'Error',
-      'alert' => 'Alert',
-      'info' => 'Info',
-      'success' => 'Success',
-      'log' => 'Log',
-      'debug' => 'Debug',
-    );
   
   protected $messages;
   // internal loop variables
   protected $message;
+  protected $item;
   
   public function __construct() {
     $this->messages = core_Messages::messages();
@@ -38,7 +31,8 @@ class Messages extends HTML {
   public function message() {
     $this->_button(array('type' => 'button', 'class' => 'close', 'data-dismiss' => 'alert'));
     $this->_heading('h4');
-    $this->_text('p');
+    if (isset($this->message['text'])) $this->_text('p');
+    if (isset($this->message['items'])) $this->_ul();
   }
 
   public function button() {
@@ -46,7 +40,7 @@ class Messages extends HTML {
   }
 
   public function heading() {
-    echo self::escape(self::$headings[$this->message['type']]);
+    echo self::escape($this->message['title']);
   }
 
   public function text() {
@@ -55,6 +49,16 @@ class Messages extends HTML {
     } else {
       echo self::escape($this->message['text']);
     }
+  }
+
+  public function ul() {
+    foreach ($this->message['items'] as $this->item) {
+      $this->_li();
+    }
+  }
+
+  public function li() {
+    echo self::escape($this->item);
   }
 
   public function script() {

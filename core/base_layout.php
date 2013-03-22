@@ -6,17 +6,10 @@ use interfaces\Layout;
 
 abstract class BaseLayout extends HTML implements Layout {
 
-  protected $views;
+  protected $view;
 
-  public function __construct($views = null) {
-    $this->views = $views;
+  public function __construct($view) {
+    $this->view = $view;
   }
 
-  public function __call($name, $arguments) {
-    if (is_array($this->views) && isset($this->views[$name])) {
-      call_user_func_array(array($this->views[$name], 'render'), $arguments);  
-    } else {
-      parent::__call($name, $arguments);
-    }
-  }
 }

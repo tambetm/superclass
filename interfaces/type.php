@@ -14,7 +14,7 @@ interface Type {
   public function control($name, $default = '');
   public function output($value);
   public function format($value);
-  public function validate(&$value);
+  public function validate(&$value, $prefix = '');
   public function kind();
-  public function label();
+  public function label($prefix = '');
 }

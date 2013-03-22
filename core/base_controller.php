@@ -9,7 +9,6 @@ class BaseController implements Controller {
 
   function __construct($context) {
     $this->context = $context;
-    session_start();
   }
 
   function __call($name, $arguments) {
@@ -44,9 +43,9 @@ class BaseController implements Controller {
         exit;
     }
 
-    // instantiate layout with view rendered for default region
+    // instantiate layout with view
     $layout_class = $this->context->get_layout_class();
-    $layout = new $layout_class(array(DEFAULT_REGION => $view));
+    $layout = new $layout_class($view);
 
     // render layout
     call_user_func_array(array($layout, 'render'), $arguments);  

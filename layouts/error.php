@@ -1,13 +1,14 @@
 <?php
 namespace layouts;
 
-use layouts\HTML5;
+use layouts\HTML5Layout;
 
-class Error extends HTML5 {
+class Error extends HTML5Layout {
 
   protected $exception;
 
   public function __construct($exception) {
+    parent::__construct(null);
     $this->exception = $exception;
   }
 

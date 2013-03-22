@@ -115,6 +115,18 @@ class Database {
     return pg_fetch_all($result);
   }
 
+  public function begin() {
+    return $this->execute('begin');
+  }
+
+  public function commit() {
+    return $this->execute('commit');
+  }
+
+  public function rollback() {
+    return $this->execute('rollback');
+  }
+
   public function __destruct() {
     pg_close($this->connection);
   }

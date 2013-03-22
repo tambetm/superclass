@@ -2,6 +2,7 @@
 namespace views;
 
 use core\BaseView;
+use core\String;
 
 class Table extends BaseView {
 
@@ -26,6 +27,10 @@ class Table extends BaseView {
     $this->data = $this->model->select($_GET);
   }
 
+  public function title() {
+    return String::humanize($this->model->table());
+  }
+
   public function render() {
     $attributes = array();
     if (isset($this->config['class'])) {
@@ -35,10 +40,17 @@ class Table extends BaseView {
   }
 
   protected function table() {
+    $this->_table_colgroup();
     $this->_table_thead();
     $this->_table_tbody();
     // output footer only if it has contents
     $this->_table_tfoot(null, null, true);
+  }
+
+  protected function table_colgroup() {
+    foreach ($this->meta as $this->field => $this->field_meta) {
+      $this->_table_colgroup_col(array('class' => $this->field.' '.$this->model->field($this->field)->kind()));
+    }
   }
 
   protected function table_thead() {
@@ -47,7 +59,7 @@ class Table extends BaseView {
 
   protected function table_thead_tr() {
     foreach ($this->meta as $this->field => $this->field_meta) {
-      $this->_table_thead_tr_th(array('class' => $this->field.' '.$this->field_meta['udt_name']));
+      $this->_table_thead_tr_th();
     }
   }
 
@@ -70,7 +82,7 @@ class Table extends BaseView {
 
   protected function table_tbody_tr() {
     foreach ($this->meta as $this->field => $this->field_meta) {
-      $this->_table_tbody_tr_td(array('class' => $this->field.' '.$this->model->field($this->field)->kind()));
+      $this->_table_tbody_tr_td();
     }
   }
 

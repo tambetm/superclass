@@ -1,13 +1,13 @@
 <?php
 namespace layouts;
 
-use layouts\HTML5;
+use layouts\HTML5Layout;
 use core\URL;
 use models\GlobalMenu;
 use views\Menu;
 use views\Messages;
 
-class Bootstrap extends HTML5 {
+class Bootstrap extends HTML5Layout {
 
   public $viewport = 'width=device-width, initial-scale=1.0';
 
@@ -17,7 +17,7 @@ class Bootstrap extends HTML5 {
   }
 
   public function title() {
-    echo 'Bootstrap, from Twitter';
+    echo self::escape($this->view->title());
   }
 
   public function head_metas() {
@@ -73,9 +73,14 @@ class Bootstrap extends HTML5 {
   }
 
   public function body_content() {
-    $this->_title('h1');
     $this->messages();
+    $this->_title('h1');
     $this->content();
+  }
+
+  public function primary_menu() {
+    $menu = new Menu('primary');
+    $menu->render();
   }
 
   public function messages() {
@@ -83,8 +88,7 @@ class Bootstrap extends HTML5 {
     $messages->render();
   }
 
-  public function primary_menu() {
-    $menu = new Menu('primary');
-    $menu->render();
+  public function content() {
+    $this->view->render();
   }
 }
