@@ -1,6 +1,10 @@
 <?php
+namespace core;
 
-abstract class core_BaseType extends core_HTMLTemplate implements interfaces_Type {
+use core\HTML;
+use interfaces\Type;
+
+abstract class BaseType extends HTML implements Type {
   protected $meta;
   
   public function __construct($meta) {
@@ -21,6 +25,14 @@ abstract class core_BaseType extends core_HTMLTemplate implements interfaces_Typ
 
   public function __unset($name) {
     unset($this->meta[$name]);
+  }
+
+  public function output($value) {
+    echo self::escape($this->format($value));
+  }
+
+  public function format($value) {
+    return $value;
   }
 
   public function validate(&$value) {

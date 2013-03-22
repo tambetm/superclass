@@ -1,5 +1,6 @@
 <?php
+namespace interfaces;
 
-interface interfaces_Controller {
+interface Controller {
   public function __construct($context);
 }

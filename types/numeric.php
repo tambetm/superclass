@@ -1,6 +1,10 @@
 <?php
+namespace types;
 
-class types_Numeric extends core_BaseType {
+use core\BaseType;
+use core\Locale;
+
+class Numeric extends BaseType {
 
   protected $locale;
   protected $max;
@@ -8,12 +12,12 @@ class types_Numeric extends core_BaseType {
 
   public function __construct($meta) {
     parent::__construct($meta);
-    $this->locale = core_Locale::instance();
+    $this->locale = Locale::instance();
     $this->max = pow($this->numeric_precision_radix, $this->numeric_precision - $this->numeric_scale) - pow($this->numeric_precision_radix, -$this->numeric_scale);
     $this->min = -$this->max;
   }
 
-  public function widget($name, $default = '', $attrs = array()) {
+  public function control($name, $default = '', $attrs = array()) {
     $attributes = array(
       'type' => 'number',
       'name' => $name,
@@ -34,7 +38,7 @@ class types_Numeric extends core_BaseType {
 
   public function format($value) {
     if (!is_null($value) && $value !== '') {
-      echo $this->escape(number_format($value, $this->numeric_scale, $this->locale->decimal_point, $this->locale->thousands_sep));
+      return self::escape(number_format($value, $this->numeric_scale, $this->locale->decimal_point, $this->locale->thousands_sep));
     }
   }
 

@@ -1,6 +1,7 @@
 <?php
+namespace core;
 
-class core_Locale {
+class Locale {
 
   protected $locale;
   protected $options;
@@ -37,7 +38,7 @@ class core_Locale {
 
   static public function instance() {
     if (is_null(self::$instance)) {
-      self::$instance = new core_Locale();
+      self::$instance = new Locale();
     }
     return self::$instance;
   }

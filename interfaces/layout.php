@@ -1,6 +1,7 @@
 <?php
+namespace interfaces;
 
-interface interfaces_Layout {
+interface Layout {
   public function __construct($views);
   public function render();
 }

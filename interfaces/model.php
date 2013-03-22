@@ -1,6 +1,7 @@
 <?php
+namespace interfaces;
 
-interface interfaces_Model {
+interface Model {
   public function __construct($table);
 
   // meta data

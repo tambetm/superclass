@@ -3,11 +3,14 @@
 // include config
 require_once('config/php.php');
 require_once('config/framework.php');
+require_once('core/string.php'); // HACK
+
+use core\String;
 
 // set up class autoloading
 function __autoload($class_name) {
   // file name is class name in lowercase, underscores replaced with directory separators
-  $filename = str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, strtolower($class_name)) . '.php';
+  $filename = String::uncamelize(str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $class_name)) . '.php';
   // check for class file and include it
 	$paths = explode(PATH_SEPARATOR, get_include_path());
 	foreach ($paths as $path) {

@@ -1,11 +1,18 @@
 <?php
+namespace layouts;
 
-class layouts_Bootstrap extends layouts_HTML5 {
+use layouts\HTML5;
+use core\URL;
+use models\GlobalMenu;
+use views\Menu;
+use views\Messages;
+
+class Bootstrap extends HTML5 {
 
   public $viewport = 'width=device-width, initial-scale=1.0';
 
   public function head() {
-    $this->_base(array('href' => core_URL::base_url()));
+    $this->_base(array('href' => URL::base_url()));
     parent::head();
   }
 
@@ -23,8 +30,15 @@ class layouts_Bootstrap extends layouts_HTML5 {
     $this->_link(array('href' => 'assets/css/bootstrap.min.css', 'rel' => 'stylesheet', 'media' => 'screen'));
   }
 
+  public function head_scripts() {
+    parent::head_scripts();
+    $this->_script(array('src' => 'http://code.jquery.com/jquery.js'));
+    $this->_script(array('src' => 'assets/js/bootstrap.min.js'));
+  }
+
   public function body() {
     $this->_navbar('div', array('class' => 'navbar navbar-inverse navbar-static-top'));
+    $this->_primary_menu('div', array('class' => 'container'));
     $this->_body_content('div', array('class' => 'container', 'id' => 'content'));
     parent::body();
   }
@@ -39,7 +53,7 @@ class layouts_Bootstrap extends layouts_HTML5 {
 
   public function navbar_container() {
     $this->_navbar_button(array('type' => 'button', 'class' => 'btn btn-navbar', 'data-toggle' => 'collapse', 'data-target' => '.nav-collapse'));
-    $this->_navbar_brand('a', array('class' => 'brand', 'href' => core_URL::base_url()));
+    $this->_navbar_brand('a', array('class' => 'brand', 'href' => URL::base_path()));
     $this->_navbar_menu('div', array('class' => 'nav-collapse collapse'));
   }
 
@@ -54,20 +68,23 @@ class layouts_Bootstrap extends layouts_HTML5 {
   }
 
   public function navbar_menu() {
-    $model = new models_GlobalMenu();
-    $view = new views_Nav($model);
-    $view->render();
+    $menu = new Menu('global');
+    $menu->render();
   }
 
   public function body_content() {
     $this->_title('h1');
+    $this->messages();
     $this->content();
   }
 
-  public function body_scripts() {
-    parent::body_scripts();
-    $this->_script(array('src' => 'http://code.jquery.com/jquery.js'));
-    $this->_script(array('src' => 'assets/js/bootstrap.min.js'));
+  public function messages() {
+    $messages = new Messages();
+    $messages->render();
   }
 
+  public function primary_menu() {
+    $menu = new Menu('primary');
+    $menu->render();
+  }
 }

@@ -1,6 +1,10 @@
 <?php
+namespace core;
 
-class core_ErrorHandler implements interfaces_ErrorHandler {
+use layouts\Error;
+use core\Messages;
+
+class ErrorHandler {
 
   protected $config;
   protected $cwd;
@@ -50,18 +54,18 @@ class core_ErrorHandler implements interfaces_ErrorHandler {
         while (ob_get_level() > 0) ob_end_clean();
         // don't send 500 header, because then IE doesn't show our content
         //header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-        $layout = new layouts_Error($exception);
+        $layout = new Error($exception);
         $layout->render();
         exit;
       } else if (ini_get('display_errors')) { // display errors, if enabled
-        echo nl2br($error);
+        Messages::log(nl2br($error));
       }
     }
   }
 
   public function handle_error($errno, $errstr, $errfile, $errline) {
     // create exception based on the error
-    $exception = new ErrorException(self::$error_levels[$errno].': '.$errstr, $errno, 0, $errfile, $errline);
+    $exception = new \ErrorException(self::$error_levels[$errno].': '.$errstr, $errno, 0, $errfile, $errline);
     $this->handle_exception($exception, $errno);
   }
 

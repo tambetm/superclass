@@ -1,6 +1,9 @@
 <?php
+namespace layouts;
 
-class layouts_Error extends layouts_HTML5 {
+use layouts\HTML5;
+
+class Error extends HTML5 {
 
   protected $exception;
 

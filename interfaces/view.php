@@ -1,6 +1,9 @@
 <?php
+namespace interfaces;
 
-interface interfaces_View {
+interface View {
   public function __construct($model);
+  public function get();
+  public function post();
   public function render();
 }

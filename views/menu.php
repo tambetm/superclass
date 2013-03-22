@@ -1,7 +1,12 @@
 <?php
+namespace views;
 
-class views_Nav extends core_BaseView {
+use core\HTML;
+use core\URL;
 
+class Menu extends HTML {
+
+  protected $name;
   protected $menu;
   protected $config;
 
@@ -9,16 +14,16 @@ class views_Nav extends core_BaseView {
   protected $url;
   protected $label;
 
-  public function __construct($model) {
-    parent::__construct($model);
-    $this->menu = $model->get();
-    include('config/nav.php');
-    $this->config = $config;
+  public function __construct($name) {
+    $this->name = $name;
+    include('config/menu.php');
+    $this->menu = $menu[$name];
+    $this->config = $config[$name];
   }
 
   public function render() {
     if (is_array($this->menu)) {
-      $attributes = array();
+      $attributes = array('id' => $this->name);
       if (isset($this->config['class'])) {
         $attributes['class'] = $this->config['class'];
       }
@@ -27,9 +32,9 @@ class views_Nav extends core_BaseView {
   }
 
   public function ul() {
-    $current_url = core_URL::current_url();
+    $current_url = URL::current_url();
     foreach ($this->menu as $this->url => $this->label) {
-      if (strpos($current_url, $this->url, 1) === 1) {
+      if (strpos($current_url, $this->url) === 0) {
         $this->_ul_li(array('class' => 'active'));
       } else {
         $this->_ul_li();
@@ -42,6 +47,6 @@ class views_Nav extends core_BaseView {
   }
 
   public function ul_li_a() {
-    echo $this->escape($this->label);
+    echo self::escape($this->label);
   }
 }

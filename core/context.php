@@ -1,6 +1,10 @@
 <?php
+namespace core;
 
-class core_Context {
+use core\URL;
+use core\String;
+
+class Context {
   
   public $url;
   protected $segments;
@@ -9,7 +13,7 @@ class core_Context {
 
   public function __construct($url = null) {
     if (is_null($url)) {
-      $url = core_URL::current_url();
+      $url = URL::current_url();
     }
     $this->url = $url;
     $this->segments = array_filter(explode('/', strtolower(trim($url, '/'))));
@@ -17,7 +21,7 @@ class core_Context {
     if (count($this->segments) > 0) {
       // uppercase first letter of last element
       $last = count($this->segments) - 1;
-      $this->segments[$last] = ucfirst($this->segments[$last]);
+      $this->segments[$last] = String::camelize($this->segments[$last]);
     } else {
       $this->segments[] = DEFAULT_CONTROLLER;
     }
@@ -45,19 +49,19 @@ class core_Context {
   }
 
   public function get_view_class() {
-    $view_class = VIEW_NAMESPACE.NAMESPACE_SEPARATOR.$this->class.ucfirst($this->method);
+    $view_class = VIEW_NAMESPACE.NAMESPACE_SEPARATOR.$this->class.String::camelize($this->method);
     if (class_exists($view_class)) {
       return $view_class;
     }
-    return VIEW_NAMESPACE.NAMESPACE_SEPARATOR.ucfirst($this->method);
+    return VIEW_NAMESPACE.NAMESPACE_SEPARATOR.String::camelize($this->method);
   }
 
   public function get_action_class() {
-    $action_class = ACTION_NAMESPACE.NAMESPACE_SEPARATOR.$this->class.ucfirst($this->method);
+    $action_class = ACTION_NAMESPACE.NAMESPACE_SEPARATOR.$this->class.String::camelize($this->method);
     if (class_exists($action_class)) {
       return $action_class;
     }
-    return ACTION_NAMESPACE.NAMESPACE_SEPARATOR.ucfirst($this->method);
+    return ACTION_NAMESPACE.NAMESPACE_SEPARATOR.String::camelize($this->method);
   }
 
   public function get_model_class() {
@@ -70,7 +74,7 @@ class core_Context {
   }
 
   public function get_database_table() {
-    return str_replace(NAMESPACE_SEPARATOR, SCHEMA_SEPARATOR ,strtolower($this->class));
+    return str_replace(NAMESPACE_SEPARATOR, SCHEMA_SEPARATOR ,String::uncamelize($this->class));
   }
 
   public function get_layout_class() {

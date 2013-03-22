@@ -1,6 +1,7 @@
 <?php
+namespace core;
 
-class core_Database {
+class Database {
 
   static $databases = array();
 
@@ -8,7 +9,7 @@ class core_Database {
     if (isset(self::$databases[$name])) {
       return self::$databases[$name];
     } else {
-      return self::$databases[$name] = new core_Database($name);      
+      return self::$databases[$name] = new Database($name);      
     }
   }
 

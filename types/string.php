@@ -1,8 +1,11 @@
 <?php
+namespace types;
 
-class types_String extends core_BaseType {
+use core\BaseType;
 
-  public function widget($name, $default = '', $attrs = array()) {
+class String extends BaseType {
+
+  public function control($name, $default = '', $attrs = array()) {
     $attributes = array(
       'type' => 'text',
       'name' => $name,
@@ -20,10 +23,6 @@ class types_String extends core_BaseType {
       $attributes['value'] = $default;
     }
     $this->_input(array_merge($attributes, $attrs));
-  }
-
-  public function format($value) {
-    echo $this->escape($value);
   }
 
   public function validate(&$value) {

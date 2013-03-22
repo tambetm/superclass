@@ -1,6 +1,10 @@
 <?php
+namespace core;
 
-abstract class core_BaseLayout extends core_HTMLTemplate implements interfaces_Layout {
+use core\HTML;
+use interfaces\Layout;
+
+abstract class BaseLayout extends HTML implements Layout {
 
   protected $views;
 

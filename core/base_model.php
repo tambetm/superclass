@@ -1,6 +1,10 @@
 <?php
+namespace core;
 
-class core_BaseModel implements interfaces_Model {
+use interfaces\Model;
+use core\Database;
+
+class BaseModel implements Model {
 
   protected $table;
   protected $db;
@@ -15,7 +19,7 @@ class core_BaseModel implements interfaces_Model {
 
   public function __construct($table) {
     $this->table = $table;
-    $this->db = core_Database::database();
+    $this->db = Database::database();
     $this->meta = $this->db->meta_data($table);
   }
 

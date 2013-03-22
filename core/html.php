@@ -1,6 +1,7 @@
 <?php
+namespace core;
 
-class core_HTMLTemplate {
+class HTML {
 
   static private $level = 0;
 
@@ -73,7 +74,7 @@ class core_HTMLTemplate {
   public function __call($name, $arguments) {
     // all internal methods must start with _
     if (strpos($name, '_') !== 0) {
-      throw new BadMethodCallException("Invalid method '$name'");
+      throw new \BadMethodCallException("Invalid method '$name'");
     }
 
     // call the same method without leading underscore
@@ -90,7 +91,7 @@ class core_HTMLTemplate {
         if (!$content) return;
       } else {
         // otherwise third argument is contents of the tag, which is automatically escaped
-        $content = $this->escape($arguments[2]);
+        $content = self::escape($arguments[2]);
       }
     }
 
@@ -117,7 +118,7 @@ class core_HTMLTemplate {
     if (isset($attributes)) {
       foreach ($attributes as $name => $value) {
         // escape attribute values for convenience
-        $attrs .= ' '.$name.'="'.$this->escape($value).'"';
+        $attrs .= ' '.$name.'="'.self::escape($value).'"';
       }
     }
 
@@ -146,7 +147,8 @@ class core_HTMLTemplate {
     echo "\n".str_repeat(' ', $level * 2);
   }
 
-  public function escape($value) {
+  static public function escape($value) {
     return htmlspecialchars($value);
   }
+
 }

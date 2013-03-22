@@ -1,6 +1,7 @@
 <?php
+namespace interfaces;
 
-interface interfaces_Type {
+interface Type {
   const KIND_STRING = 'string';
   const KIND_TEXT = 'text';
   const KIND_NUMBER = 'number';
@@ -10,7 +11,8 @@ interface interfaces_Type {
   const KIND_DATETIME = 'datetime';
   
   public function __construct($meta);
-  public function widget($name, $default = '');
+  public function control($name, $default = '');
+  public function output($value);
   public function format($value);
   public function validate(&$value);
   public function kind();

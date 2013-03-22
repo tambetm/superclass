@@ -1,12 +1,16 @@
 <?php
+namespace layouts;
 
-abstract class layouts_HTML5 extends core_BaseLayout {
+use core\BaseLayout;
+use core\Locale;
+
+abstract class HTML5 extends BaseLayout {
 
   public $charset = 'utf-8';
 
   public function render() {
     $this->doctype();
-    $locale = core_Locale::instance();
+    $locale = Locale::instance();
     $this->_html(array('lang' => $locale->get_primary_language()));
   }
 

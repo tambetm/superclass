@@ -3,5 +3,5 @@ namespace types;
 
 use types\String;
 
-class Character extends String {
+class CharacterVarying extends String {
 }

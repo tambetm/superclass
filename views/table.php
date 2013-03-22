@@ -1,6 +1,9 @@
 <?php
+namespace views;
 
-class views_Table extends core_BaseView {
+use core\BaseView;
+
+class Table extends BaseView {
 
   protected $meta;
   protected $data;
@@ -14,10 +17,13 @@ class views_Table extends core_BaseView {
 
   public function __construct($model) {
     parent::__construct($model);
-    $this->meta = $model->meta();
-    $this->data = $model->select($_GET);
     include('config/table.php');
     $this->config = $config;
+    $this->meta = $model->meta();
+  }
+
+  public function get() {
+    $this->data = $this->model->select($_GET);
   }
 
   public function render() {
@@ -69,7 +75,7 @@ class views_Table extends core_BaseView {
   }
 
   protected function table_tbody_tr_td() {
-    $this->model->field($this->field)->format($this->row[$this->field]);
+    $this->model->field($this->field)->output($this->row[$this->field]);
   }
 
   protected function table_tfoot() {

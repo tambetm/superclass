@@ -1,4 +1,7 @@
 <?php
+namespace types;
 
-class types_Integer extends types_Numeric {
+use types\Numeric;
+
+class Integer extends Numeric {
 }

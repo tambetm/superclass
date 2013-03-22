@@ -1,8 +1,11 @@
 <?php
+namespace types;
 
-class types_Text extends types_String {
+use types\String;
 
-  public function widget($name, $default = '', $attrs = array()) {
+class Text extends String {
+
+  public function control($name, $default = '', $attrs = array()) {
     $attributes = array(
       'name' => $name,
     );
