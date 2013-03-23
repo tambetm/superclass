@@ -19,14 +19,14 @@ class Boolean extends BaseField {
     if ($default == 't') {
       $attributes['checked'] = 'checked';
     }
-    parent::control($name, 't', array_merge($attributes, $attrs));
+    parent::control($name, 't', self::merge_attributes($attributes, $attrs));
   }
 
-  public function validate(&$value, $prefix = '') {
-    if (!parent::validate($value, $prefix)) return false;
+  public function validate(&$value, &$error) {
+    if (!parent::validate($value, $error)) return false;
 
     if (!($value == 't' || $value == 'f')) {
-      Messages::error_item(sprintf(_('%s can only have value t or f.'), $this->label($prefix)));
+      $error = sprintf(_('%s can only have value t or f.'), $this->label());
       return false;
     }
 

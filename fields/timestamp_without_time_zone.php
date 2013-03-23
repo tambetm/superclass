@@ -7,7 +7,7 @@ class TimestampWithoutTimeZone extends BaseField {
 
   public function control($name, $default = '', $attrs = array()) {
     $attributes = array('type' => 'datetime-local');
-    parent::control($name, $default, array_merge($attributes, $attrs));
+    parent::control($name, $default, self::merge_attributes($attributes, $attrs));
   }
 
   public function kind() {

@@ -10,30 +10,20 @@ class Messages {
 
   static public function init() {
     self::$session = Session::instance();
-    self::$headings = array(
-      'error' => _('Error'),
-      'alert' => _('Alert'),
-      'info' => _('Info'),
-      'success' => _('Success'),
-      'log' => _('Log'),
-      'debug' => _('Debug'),
-    );
   }
 
-  static public function message($type, $title, $text = null) {
+  static public function message($type, $title, $items = null) {
     // make up a message
     $message = array(
       'type' => $type,
       'title' => $title,
-      'text' => $text,
     );
-
-    // add items, if they exist
-    $message_items = self::$session->message_items;
-    if (isset($message_items[$type])) {
-      $message['items'] = $message_items[$type];
-      unset($message_items[$type]);
-      self::$session->message_items = $message_items;
+    if (!is_null($items)){
+      if (is_array($items)) {
+        $message['items'] = $items;
+      } else {
+        $message['text'] = $items;
+      }
     }
 
     // add message to list
@@ -42,37 +32,35 @@ class Messages {
     self::$session->messages = $messages;
   }
 
-  static public function item($type, $message) {
-    // add item to list
-    $message_items = self::$session->message_items;
-    $message_items[$type][] = $message;
-    self::$session->message_items = $message_items;
-  }
-
   static public function messages() {
-    // pick up remaining items
-    $message_items = self::$session->message_items;
-    if (is_array($message_items)) {
-      foreach($message_items as $type => $items) {
-        self::message($type, self::$headings[$type]);
-      }
-    }
-
     // return messages and purge them from session
     $messages = self::$session->messages;
     unset(self::$session->messages);
     return $messages;
   }
 
-  static public function __callStatic($name, $arguments) {
-    // if ends with _item
-    if (strpos($name, '_item') === strlen($name) - 5) {
-      array_unshift($arguments, substr($name, 0, strlen($name) - 5));
-      call_user_func_array('self::item', $arguments);
-    } else {
-      array_unshift($arguments, $name);
-      call_user_func_array('self::message', $arguments);
-    }
+  static public function error($message, $items = null) {
+    self::message('error', $message, $items);
+  }
+
+  static public function alert($message, $items = null) {
+    self::message('alert', $message, $items);
+  }
+
+  static public function info($message, $items = null) {
+    self::message('info', $message, $items);
+  }
+
+  static public function success($message, $items = null) {
+    self::message('success', $message, $items);
+  }
+
+  static public function log($message, $items = null) {
+    self::message('log', $message, $items);
+  }
+
+  static public function debug($message, $items = null) {
+    self::message('debug', $message, $items);
   }
 }
 

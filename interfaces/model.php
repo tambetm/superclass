@@ -5,9 +5,9 @@ interface Model {
   public function __construct($table);
 
   // meta data
-  public function meta();
   public function table();
-  public function field($name);
+  public function caption();
+  public function fields();
   public function primary_key();
 
   // query and manipulation
@@ -15,6 +15,6 @@ interface Model {
   public function insert($data);
   public function update($data, $where);
   public function delete($where);
-  public function validate(&$data, $prefix = '');
+  public function validate(&$data, &$errors, $prefix = '');
   public function defaults();
 }

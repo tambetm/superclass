@@ -6,12 +6,12 @@ use core\String;
 
 class Table extends BaseView {
 
-  protected $meta;
-  protected $data;
   protected $config;
+  protected $fields;
+  protected $data;
 
   // internal loop variables
-  protected $field;
+  protected $name;
   protected $field_meta;
   protected $nr;
   protected $row;
@@ -20,7 +20,7 @@ class Table extends BaseView {
     parent::__construct($model);
     include('config/table.php');
     $this->config = $config;
-    $this->meta = $model->meta();
+    $this->fields = $model->fields();
   }
 
   public function get() {
@@ -28,7 +28,7 @@ class Table extends BaseView {
   }
 
   public function title() {
-    return String::humanize($this->model->table());
+    return $this->model->caption();
   }
 
   public function render() {
@@ -48,8 +48,8 @@ class Table extends BaseView {
   }
 
   protected function table_colgroup() {
-    foreach ($this->meta as $this->field => $this->field_meta) {
-      $this->_table_colgroup_col(array('class' => $this->field.' '.$this->model->field($this->field)->kind()));
+    foreach ($this->fields as $this->field => $this->field_meta) {
+      $this->_table_colgroup_col(array('class' => $this->field.' '.$this->field_meta->kind()));
     }
   }
 
@@ -58,13 +58,13 @@ class Table extends BaseView {
   }
 
   protected function table_thead_tr() {
-    foreach ($this->meta as $this->field => $this->field_meta) {
+    foreach ($this->fields as $this->field => $this->field_meta) {
       $this->_table_thead_tr_th();
     }
   }
 
   protected function table_thead_tr_th() {
-    echo $this->model->field($this->field)->label();
+    echo $this->field_meta->label();
   }
 
   protected function _table_tbody() {
@@ -81,13 +81,13 @@ class Table extends BaseView {
   }
 
   protected function table_tbody_tr() {
-    foreach ($this->meta as $this->field => $this->field_meta) {
+    foreach ($this->fields as $this->field => $this->field_meta) {
       $this->_table_tbody_tr_td();
     }
   }
 
   protected function table_tbody_tr_td() {
-    $this->model->field($this->field)->output($this->row[$this->field]);
+    $this->field_meta->output($this->row[$this->field]);
   }
 
   protected function table_tfoot() {

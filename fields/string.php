@@ -2,22 +2,22 @@
 namespace fields;
 
 use core\BaseField;
-use core\Messages;
 
 class String extends BaseField {
 
   public function control($name, $default = '', $attrs = array()) {
-    if (!is_null($this->character_maximum_length)) {
-      $attributes['maxlength'] = $this->character_maximum_length;
+    $attributes = array();
+    if (!is_null($this->column['character_maximum_length'])) {
+      $attributes['maxlength'] = $this->column['character_maximum_length'];
     }
-    parent::control($name, $default, array_merge($attributes, $attrs));
+    parent::control($name, $default, self::merge_attributes($attributes, $attrs));
   }
 
-  public function validate(&$value, $prefix = '') {
-    if (!parent::validate($value, $prefix)) return false;
+  public function validate(&$value, &$error) {
+    if (!parent::validate($value, $error)) return false;
 
-    if (!is_null($this->character_maximum_length) && mb_strlen($value) > $this->character_maximum_length) {
-      Messages::error_item(sprintf(_('%s can\'t be longer than %d characters.'), $this->label($prefix), $this->character_maximum_length));
+    if (!is_null($this->column['character_maximum_length']) && mb_strlen($value) > $this->column['character_maximum_length']) {
+      $error = sprintf(_('%s cannot be longer than %d characters.'), $this->label(), $this->column['character_maximum_length']);
       return false;
     }
 

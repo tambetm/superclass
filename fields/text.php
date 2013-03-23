@@ -8,17 +8,15 @@ class Text extends String {
   public function control($name, $default = '', $attrs = array()) {
     $attributes = array(
       'name' => $name,
+      'type' => null,
+      'value' => null,
     );
-    if (!is_null($this->character_maximum_length)) {
-      $attributes['maxlength'] = $this->character_maximum_length;
-    }
-    if ($this->is_nullable == 'NO') {
-      $attributes['required'] = 'required';
-    }
-    if ($this->is_updatable == 'NO') {
-      $attributes['readonly'] = 'readonly';
-    }
-    $this->_textarea(array_merge($attributes, $attrs), null, $default);
+    parent::control($name, $default, self::merge_attributes($attributes, $attrs));
+  }
+
+  public function _input() {
+    // get all the attributes assigned by parent, but use textarea instead
+    call_user_func_array(array($this, '_textarea'), func_get_args());
   }
 
   public function kind() {

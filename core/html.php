@@ -154,4 +154,24 @@ class HTML {
     return htmlspecialchars($value);
   }
 
+  static public function merge_attributes($attrs1, $attrs2) {
+    // handle empty arguments first
+    if (!is_array($attrs1) || empty($attrs1)) return $attrs2;
+    if (!is_array($attrs2) || empty($attrs2)) return $attrs1;
+
+    foreach ($attrs2 as $name => $value) {
+      if (is_null($value)) {
+        // null in $attrs2 has special meaning - remove that attribute
+        unset($attrs1[$name]);
+      } elseif (isset($attrs1[$name]) && $name == 'class') {
+        // only class attributes are concatenated
+        $attrs1[$name] .= ' '.$value;
+      } else {
+        // everything else in $attrs2 overwrites $attrs1
+        $attrs1[$name] = $value;
+      }
+    }
+    return $attrs1;
+  }
+
 }

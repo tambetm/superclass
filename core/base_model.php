@@ -7,9 +7,8 @@ use core\String;
 
 class BaseModel implements Model {
 
-  protected $table;
   protected $db;
-  protected $meta;
+  protected $table;
   protected $fields;
   protected $primary_key;
 
@@ -24,49 +23,59 @@ class BaseModel implements Model {
   public function __construct($table) {
     $this->table = $table;
     $this->db = Database::database();
-    $this->meta = $this->db->meta_data($table);
-  }
-
-  public function meta() {
-    return $this->meta;
-  }
-
-  public function table() {
-    return $this->table;
   }
 
   public function db() {
     return $this->db;
   }
 
-  public function field($name) {
-    if (!isset($this->fields[$name])) {
-      $class = FIELD_NAMESPACE.NAMESPACE_SEPARATOR.str_replace(' ', '', ucwords($this->meta[$name]['data_type']));
-      $this->fields[$name] = new $class($this->meta[$name]);
+  public function table() {
+    return $this->table;
+  }
+
+  public function caption() {
+    return String::human($this->table);
+  }
+
+  protected function field($column) {
+    $class = FIELD_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($column['data_type']);
+    return new $class($column);
+  }
+
+  public function fields() {
+    if (!$this->fields) {
+      $columns = $this->db->columns($this->table);
+      if (!is_array($columns)) throw new \UnexpectedValueException("Invalid metadata for columns for table '$this->table'");
+
+      foreach ($columns as $name => $column) {
+        $this->fields[$name] = $this->field($column);
+      }
     }
-    return $this->fields[$name];
+    return $this->fields;
   }
 
   public function primary_key() {
     if (!$this->primary_key) {
-      $this->primary_key = $this->db->primary_key($this->table);
+       $primary_key = $this->db->primary_key($this->table);
+       if (!is_array($primary_key)) throw new \UnexpectedValueException("Invalid metadata for primary key for table '$this->table'");
+       $this->primary_key = $primary_key;
     }
     return $this->primary_key;
   }
 
   protected function escape_value($field, $value) {
-    $type = $this->meta[$field]['udt_name'];
+    $type = $this->fields[$field]->database_type();
     $value = $this->db->escape($value, $type);
     return $value;
   }
 
   public function values($field, $value = null) {
     if (is_array($field)) {
-      $fields = array_intersect_key($field, $this->meta);
+      $fields = array_intersect_key($field, $this->fields);
       $this->names = implode(', ', array_keys($fields));
       $fields = array_map(array($this, 'escape_value'), array_keys($fields), $fields);
       $this->values = implode(', ', $fields);
-    } elseif (isset($this->meta[$field])) {
+    } elseif (isset($this->fields[$field])) {
       if ($this->values != '') $this->values .= ', ';
       $this->values .= $this->escape_value($field, $value);
       if ($this->names != '') $this->names .= ', ';
@@ -76,17 +85,17 @@ class BaseModel implements Model {
   }
 
   protected function escape_set($field, $value) {
-    $type = $this->meta[$field]['udt_name'];
+    $type = $this->fields[$field]->database_type();
     $value = $this->db->escape($value, $type);
     return "$field = $value";
   }
 
   public function set($field, $value = null) {
     if (is_array($field)) {
-      $fields = array_intersect_key($field, $this->meta);
+      $fields = array_intersect_key($field, $this->fields);
       $fields = array_map(array($this, 'escape_set'), array_keys($fields), $fields);
       $this->set = implode(', ', $fields);
-    } elseif (isset($this->meta[$field])) {
+    } elseif (isset($this->fields[$field])) {
       if ($this->set != '') $this->set .= ', ';
       $this->set .= $this->escape_set($field, $value);
     }
@@ -94,7 +103,7 @@ class BaseModel implements Model {
   }
 
   protected function escape_where($field, $value) {
-    $type = $this->meta[$field]['udt_name'];
+    $type = $this->fields[$field]->database_type();
     if (is_array($value)) {
       $values = array_map(array($this->db, 'escape'), $value, array_fill_keys(array_keys($value), $type));
       $values = implode(', ', $values);
@@ -107,10 +116,10 @@ class BaseModel implements Model {
 
   public function where($field, $value = null) {
     if (is_array($field)) {
-      $fields = array_intersect_key($field, $this->meta);
+      $fields = array_intersect_key($field, $this->fields);
       $fields = array_map(array($this, 'escape_where'), array_keys($fields), $fields);
       $this->where = implode(' AND ', $fields);
-    } elseif (isset($this->meta[$field])) {
+    } elseif (isset($this->fields[$field])) {
       if ($this->where != '') $this->where .= ' AND ';
       $this->where .= $this->escape_where($field, $value);
     }
@@ -127,10 +136,10 @@ class BaseModel implements Model {
 
   public function order_by($field, $direction = null) {
     if (is_array($field)) {
-      $fields = array_intersect_key($field, $this->meta);
+      $fields = array_intersect_key($field, $this->fields);
       $fields = array_map(array($this, 'escape_order_by'), array_keys($fields), $fields);
       $this->order_by = implode(', ', $fields);
-    } elseif (isset($this->meta[$field])) {
+    } elseif (isset($this->fields[$field])) {
       if ($this->order_by != '') $this->order_by .= ', ';
       $this->order_by .= $this->escape_order_by($field, $$direction);
     }
@@ -162,12 +171,14 @@ class BaseModel implements Model {
     if ($this->limit != 0) $sql .= " LIMIT $this->limit";
     if ($this->offset != 0) $sql .= " OFFSET $this->offset";
 
+    // database errors trigger error anyway
     return $this->db->select_all($sql);
   }
 
   public function insert($data) {
     $this->values($data);
     $sql = "INSERT INTO $this->table ($this->names) VALUES ($this->values)";
+    // database errors trigger error anyway
     return $this->db->execute($sql);
   }
 
@@ -175,22 +186,25 @@ class BaseModel implements Model {
     $this->set($data);
     $this->where($where);
     $sql = "UPDATE $this->table SET $this->set WHERE $this->where";
+    // database errors trigger error anyway
     return $this->db->execute($sql);
   }
 
   public function delete($where) {
     $this->where($where);
     $sql = "DELETE FROM $this->table WHERE $this->where";
+    // database errors trigger error anyway
     return $this->db->execute($sql);
   }
 
-  public function validate(&$data, $prefix = '') {
-    $data = array_intersect_key($data, $this->meta);
+  public function validate(&$data, &$errors, $prefix = '') {
+    $data = array_intersect_key($data, $this->fields);
     $success = true;
-    foreach($this->meta as $name => $meta) {
-      $field = $this->field($name);
-      if (!$field->validate($data[$name], $prefix)) {
+    foreach($data as $name => &$value) {
+      $field = $this->fields[$name];
+      if (!$field->validate($value, $error, $prefix)) {
         $success = false;
+        $errors[] = $prefix.$error;
       }
     }
     return $success;
@@ -201,8 +215,8 @@ class BaseModel implements Model {
   }
 
   public function defaults() {
-    foreach($this->meta as $name => $meta) {
-      $defaults[$name] = $meta['column_default'];
+    foreach($this->fields as $name => $field) {
+      $defaults[$name] = $field->default_value();
     }
     // exclude nulls to conserve database bandwidth
     $defaults = array_filter($defaults);
@@ -210,8 +224,9 @@ class BaseModel implements Model {
     $defaults = implode(', ', $defaults);
     $sql = "SELECT $defaults";
     $defaults = $this->db->select_row($sql);
+    if (!is_array($defaults)) throw new \InvalidArgumentException("Unable to load defaults for '$this->table'.");
     // add nulls for all fields that didn't have default value
-    $nulls = array_fill_keys(array_keys($this->meta), null);
+    $nulls = array_fill_keys(array_keys($this->fields), null);
     $defaults = array_merge($nulls, $defaults);
     return $defaults;
   }

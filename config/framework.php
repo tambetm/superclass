@@ -19,6 +19,7 @@ define('CONTROLLER_NAMESPACE', 'controllers');
 define('MODEL_NAMESPACE', 'models');
 define('VIEW_NAMESPACE', 'views');
 define('FIELD_NAMESPACE', 'fields');
+define('DATABASE_NAMESPACE', 'databases');
 
 // separators
 define('NAMESPACE_SEPARATOR', '\\');

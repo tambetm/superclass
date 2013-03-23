@@ -50,8 +50,7 @@ class BaseController implements Controller {
       call_user_func_array(array($view, $method), $arguments);  
     } else {
       header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
-      Log::error("Method '$method' doesn't exist in view or layout");
-      exit;
+      throw new \BadMethodCallException("Method '$method' doesn't exist in view or layout");
     }
   }
 }

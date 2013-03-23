@@ -9,45 +9,48 @@ use core\Log;
 class TableEdit extends Table {
 
   protected $db;
+  protected $table;
   protected $primary_key;
   protected $where;
   protected $defaults;
   protected $selectors;
+  protected $operations;
 
   public function __construct($model) {
     parent::__construct($model);
     $this->primary_key = $model->primary_key();
     $this->db = $model->db();
+    $this->table = $model->table();
   }
 
   public function post() {
-    $table = $this->model->table();
-    if (!isset($_POST[$table]['selector']) || !is_array($_POST[$table]['selector'])) {
+    if (!isset($_POST[$this->table]['selector']) || !is_array($_POST[$this->table]['selector'])) {
       Messages::alert(_('You did not choose any rows.'));
       URL::redirect(URL::current_url());
     }
 
-    if (!isset($_POST[$table]['data']) || !is_array($_POST[$table]['data']) 
-      || !isset($_POST[$table]['where']) || !is_array($_POST[$table]['where'])) {
-      Log::error('No data posted');
-      exit;
+    if (!isset($_POST[$this->table]) || !is_array($_POST[$this->table])) {
+      throw new \InvalidArgumentException("No data posted to table '$this->table'");
     }
 
-    $this->selectors = $_POST[$table]['selector'];
-    $this->data = $_POST[$table]['data'];
-    $this->where = $_POST[$table]['where'];
+    $this->selectors = $_POST[$this->table]['selector'];
+    $this->operations = $_POST[$this->table]['operation'];
+    $this->data = $_POST[$this->table]['data'];
+    $this->where = $_POST[$this->table]['where'];
     $updates = 0;
     $inserts = 0;
     $deletes = 0;
+    $errors = array();
     $success = true;
     $this->db->begin();
-    foreach ($this->selectors as $nr => $operation) {
+    foreach ($this->selectors as $nr => $selected) {
       $row = $this->data[$nr];
+      $operation = $this->operations[$nr];
       $prefix = sprintf(_('Row %d: '), $nr + 1);
       switch($operation) {
 
         case 'insert':
-          if ($this->model->validate($row, $prefix)) {
+          if ($this->model->validate($row, $errors, $prefix)) {
             $inserts += $this->model->insert($row);
           } else {
             $success = false;
@@ -55,7 +58,7 @@ class TableEdit extends Table {
           break;
 
         case 'update':
-          if ($this->model->validate($row, $prefix)) {
+          if ($this->model->validate($row, $errors, $prefix)) {
             $where = $this->where[$nr];
             $updates += $this->model->update($row, $where);
           } else {
@@ -69,21 +72,21 @@ class TableEdit extends Table {
           break;
 
         default:
-          Log::error('Unknown operation '.$operation);
-          exit;
+          throw new \InvalidArgumentException("Unknown operation '$operation'");
       }
     }
 
     if ($success) {
       $this->db->commit();
-      if ($inserts > 0) Messages::success_item(sprintf(ngettext('%d record inserted.', '%d records inserted.', $inserts), $inserts));
-      if ($updates > 0) Messages::success_item(sprintf(ngettext('%d record updated.', '%d records updated.', $updates), $updates));
-      if ($deletes > 0) Messages::success_item(sprintf(ngettext('%d record deleted.', '%d records deleted.', $deletes), $deletes));
-      Messages::success(_('Changes saved successfully.'));
+      $stats = array();
+      if ($inserts > 0) $stats[] = sprintf(ngettext('%d record inserted.', '%d records inserted.', $inserts), $inserts);
+      if ($updates > 0) $stats[] = sprintf(ngettext('%d record updated.', '%d records updated.', $updates), $updates);
+      if ($deletes > 0) $stats[] = sprintf(ngettext('%d record deleted.', '%d records deleted.', $deletes), $deletes);
+      Messages::success(_('Changes saved successfully.'), $stats);
       URL::redirect(URL::current_url());
     } else {
       $this->db->rollback();
-      Messages::error(_('Error saving changes.'));
+      Messages::error(_('Error saving changes.'), $errors);
     }
   }
 
@@ -103,6 +106,12 @@ class TableEdit extends Table {
 
   protected function save_button() {
     echo self::escape(_('Save changes'));
+  }
+
+  protected function _table_colgroup() {
+    $this->_table_selector_col(array('class' => 'selector'));
+    parent::_table_colgroup();
+    $this->_table_delete_col(array('class' => 'delete'));
   }
 
   protected function table_thead_tr() {
@@ -126,6 +135,15 @@ class TableEdit extends Table {
     echo self::escape(_('Delete'));
   }
 
+  protected function _table_tbody_tr() {
+    $attributes = array();
+    if ($this->operations[$this->nr] == 'delete') {
+      // make deleted records different colour
+      $attributes['class'] = 'error';
+    }
+    parent::_table_tbody_tr($attributes);
+  }
+
   protected function table_tbody_tr() {
     $this->_table_tbody_tr_selector_td();
     parent::table_tbody_tr();
@@ -134,21 +152,27 @@ class TableEdit extends Table {
 
   protected function table_tbody_tr_selector_td() {
     $attributes = array(
-      'id' => $this->model->table().'__selector__'.$this->nr,
       'type' => 'checkbox',
-      'name' => $this->model->table().'[selector]['.$this->nr.']',
-      'value' => 'update',
+      'name' => "$this->table[selector][$this->nr]",
+      'value' => 't',
       'class' => 'selector',
     );
     if (isset($this->selectors[$this->nr])) {
       $attributes['checked'] = 'checked';
     }
     $this->_input($attributes);
+
+    $attributes = array(
+      'type' => 'hidden',
+      'name' => "$this->table[operation][$this->nr]",
+      'value' => isset($this->operations[$this->nr]) ? $this->operations[$this->nr] : 'update',
+    );
+    $this->_input($attributes);
   }
 
   protected function table_tbody_tr_delete_td() {
     $attributes = array(
-      'id' => $this->model->table().'__delete__'.$this->nr,
+      'id' => $this->table.'__delete__'.$this->nr,
       'type' => 'button',
       'class' => 'btn btn-danger delete',
     );
@@ -159,14 +183,13 @@ class TableEdit extends Table {
     if (isset($this->primary_key[$this->field])) {
       $this->_input(array(
         'type' => 'hidden', 
-        'name' => $this->model->table().'[where]['.$this->nr.']['.$this->field.']', 
+        'name' => "$this->table[where][$this->nr][$this->field]", 
         'value' => $this->row[$this->field],
       ));
     }
-    $field = $this->model->field($this->field);
-    $name = $this->model->table().'[data]['.$this->nr.']['.$this->field.']';
+    $name = "$this->table[data][$this->nr][$this->field]";
     $value = $this->row[$this->field];
-    $field->control($name, $value, array('class' => 'control'));
+    $this->field_meta->control($name, $value, array('class' => 'control'));
   }
 
   protected function table_tfoot() {
@@ -181,7 +204,7 @@ class TableEdit extends Table {
   protected function table_prototype_tr() {
     $this->defaults = $this->model->defaults();
     $this->_table_prototype_tr_selector_td();
-    foreach($this->meta as $this->field => $this->field_meta) {
+    foreach($this->fields as $this->field => $this->field_meta) {
       $this->_table_prototype_tr_td();
     }
     $this->_table_prototype_tr_delete_td();
@@ -189,19 +212,24 @@ class TableEdit extends Table {
 
   protected function table_prototype_tr_selector_td() {
     $attributes = array(
-      'id' => $this->model->table().'__selector____prototype__',
       'type' => 'checkbox',
-      'name' => $this->model->table().'[selector][__prototype__]',
-      'value' => 'insert',
+      'name' => "$this->table[selector][__prototype__]",
+      'value' => 't',
       'class' => 'selector',
       'checked' => 'checked',
+    );
+    $this->_input($attributes);
+
+    $attributes = array(
+      'type' => 'hidden',
+      'name' => "$this->table[operation][__prototype__]",
+      'value' => 'insert',
     );
     $this->_input($attributes);
   }
 
   protected function table_prototype_tr_delete_td() {
     $attributes = array(
-      'id' => $this->model->table().'__delete____prototype__',
       'type' => 'button',
       'class' => 'btn btn-danger delete',
     );
@@ -209,14 +237,13 @@ class TableEdit extends Table {
   }
 
   protected function table_prototype_tr_td() {
-    $field = $this->model->field($this->field);
-    $name = $this->model->table().'[data][__prototype__]['.$this->field.']';
+    $name = "$this->table[data][__prototype__][$this->field]";
     $value = $this->defaults[$this->field];
-    $field->control($name, $value, array('class' => 'control'));
+    $this->field_meta->control($name, $value, array('class' => 'control'));
   }
 
   protected function table_addnew_tr() {
-    $columns = count($this->meta) + 2;
+    $columns = count($this->fields) + 2;
     $this->_table_addnew_tr_td(array('colspan' => $columns));
   }
 
@@ -232,30 +259,40 @@ class TableEdit extends Table {
     ?>
 $('#selectall').click(function() {
   var checked = $(this).prop('checked');
-  $('#<?php echo $this->model->table()?> .selector').prop('checked', checked);
+  $('#<?=$this->table?> .selector').prop('checked', checked);
 });
 
 $('#addnew').click(function() {
-  $.get('<?php echo URL::current_url()?>;add_new', function(data) {
-    var count = $('#<?php echo $this->model->table()?> tbody tr').size();
+  $.get('<?=URL::current_url()?>;add_new', function(data) {
+    var count = $('#<?=$this->table?> tbody tr').size();
     data = data.replace('__prototype__', count, 'g');
-    $('#<?php echo $this->model->table()?> tbody').append(data);
+    $('#<?=$this->table?> tbody').append(data);
   });
 });
 
-$('#<?php echo $this->model->table()?>').on('click', '.delete', function() {
+$('#<?=$this->table?>').on('click', '.delete', function() {
   var $row = $(this).parent().parent();
   var $selector = $row.children().first().children().first();
-  var operation = $selector.val();
-  if (operation == 'update') {
-    $selector.val('delete').prop('checked', true);
-  } else {
+  var $operation = $selector.next();
+  var operation = $operation.val();
+  switch(operation) {
+  case 'update':
+    // if existing record, then mark for deleting
+    $operation.val('delete');
+    $selector.prop('checked', true);
+    break;
+  case 'insert':
+    // if new record, then just cancel insert
     $selector.prop('checked', false);
+    break;
+  case 'delete':
+    // just ignore second deletion, we will hide the row below
+    break;
   }
   $row.fadeOut('fast');
 });
 
-$('#<?php echo $this->model->table()?>').on('change', '.control', function() {
+$('#<?=$this->table?>').on('change', '.control', function() {
   var $row = $(this).parent().parent();
   var $selector = $row.children().first().children().first();
   $selector.prop('checked', true);

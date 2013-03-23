@@ -10,11 +10,17 @@ interface Field {
   const KIND_TIME = 'time';
   const KIND_DATETIME = 'datetime';
   
-  public function __construct($meta);
+  public function __construct($column);
+
+  // meta data
+  public function kind();
+  public function label();
+  public function database_type();
+  public function default_value();
+
+  // input, output and validation
   public function control($name, $default = '');
   public function output($value);
   public function format($value);
-  public function validate(&$value, $prefix = '');
-  public function kind();
-  public function label($prefix = '');
+  public function validate(&$value, &$error);
 }

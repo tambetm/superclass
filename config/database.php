@@ -1,5 +1,6 @@
 <?php
 
+$config['default']['driver'] = 'postgresql';
 //$config['default']['host'] = 'localhost';
 //$config['default']['hostaddr'] = '';
 //$config['default']['port'] = '5432';

@@ -58,7 +58,7 @@ class ErrorHandler {
         $layout->render();
         exit;
       } else if (ini_get('display_errors')) { // display errors, if enabled
-        Messages::log_item(nl2br($error));
+        Messages::log('', $error);
       }
     }
   }

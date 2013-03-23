@@ -2,6 +2,7 @@
 namespace layouts;
 
 use layouts\HTML5Layout;
+use views\Messages;
 
 class Error extends HTML5Layout {
 
@@ -17,10 +18,18 @@ class Error extends HTML5Layout {
   }
 
   public function body() {
+    $this->messages();
     $this->_title('h1');
     $this->_message('p', array('id' => 'message'));
     $this->_stack('p', array('id' => 'stack'));
     parent::body();
+  }
+
+  public function messages() {
+    /*
+    $messages = new Messages();
+    $messages->render();
+    */
   }
 
   public function message() {

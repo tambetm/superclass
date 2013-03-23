@@ -5,3 +5,12 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^(.*)$ index.php/$1 [L,QSA]
 </IfModule>
+
+<IfModule mod_php5.c>
+  # one day we will use this to differentiate between system and
+  # application classes. and to move php away from web directory.
+  #php_value include_path ".:/usr/local/lib/php"
+
+  # make our best attempt to enable short tags
+  php_value short_open_tag 1
+</IfModule>

@@ -6,26 +6,10 @@ use core\String;
 use interfaces\Field;
 
 abstract class BaseField extends HTML implements Field {
-  protected $meta;
+  protected $column;
   
-  public function __construct($meta) {
-    $this->meta = $meta;
-  }
-
-  public function __set($name, $value) {
-    $this->meta[$name] = $value;
-  }
-
-  public function __get($name) {
-    return $this->meta[$name];
-  }
-
-  public function __isset($name) {
-    return isset($this->meta[$name]);
-  }
-
-  public function __unset($name) {
-    unset($this->meta[$name]);
+  public function __construct($column) {
+    $this->column = $column;
   }
 
   public function control($name, $default = '', $attrs = array()) {
@@ -34,17 +18,17 @@ abstract class BaseField extends HTML implements Field {
       'name' => $name,
     );
     /*
-    if ($this->is_nullable == 'NO') {
+    if ($this->column['is_nullable'] == 'NO') {
       $attributes['required'] = 'required';
     }
-    if ($this->is_updatable == 'NO') {
+    if ($this->column['is_updatable'] == 'NO') {
       $attributes['readonly'] = 'readonly';
     }
     */
     if ($default !== '') {
       $attributes['value'] = $default;
     }
-    $this->_input(array_merge($attributes, $attrs));
+    $this->_input(self::merge_attributes($attributes, $attrs));
   }
 
   public function output($value) {
@@ -55,16 +39,24 @@ abstract class BaseField extends HTML implements Field {
     return $value;
   }
 
-  public function validate(&$value, $prefix = '') {
-    if ((is_null($value) || $value === '') && $this->is_nullable == 'NO') {
-      Messages::error_item(sprintf(_('%s cannot be empty.'), $this->label($prefix)));
+  public function validate(&$value, &$error) {
+    if ((is_null($value) || $value === '') && $this->column['is_nullable'] == 'NO') {
+      $error = sprintf(_('%s cannot be empty.'), $this->label());
       return false;
     } 
     
     return true;
   }
 
-  public function label($prefix = '') {
-    return $prefix.String::humanize($this->column_name);
+  public function label() {
+    return String::human($this->column['column_name']);
+  }
+
+  public function database_type() {
+    return $this->column['udt_name'];
+  }
+
+  public function default_value() {
+    return $this->column['column_default'];
   }
 }

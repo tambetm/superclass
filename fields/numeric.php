@@ -14,7 +14,7 @@ class Numeric extends BaseField {
   public function __construct($meta) {
     parent::__construct($meta);
     $this->locale = Locale::instance();
-    $this->max = pow($this->numeric_precision_radix, $this->numeric_precision - $this->numeric_scale) - pow($this->numeric_precision_radix, -$this->numeric_scale);
+    $this->max = pow($this->column['numeric_precision_radix'], $this->column['numeric_precision'] - $this->column['numeric_scale']) - pow($this->column['numeric_precision_radix'], -$this->column['numeric_scale']);
     $this->min = -$this->max;
   }
 
@@ -24,34 +24,34 @@ class Numeric extends BaseField {
       'max' => $this->max,
       'min' => $this->min,
     );
-    parent::control($name, $default, array_merge($attrs, $attributes));
+    parent::control($name, $default, self::merge_attributes($attributes, $attrs));
   }
 
   public function format($value) {
     if (!is_null($value) && $value !== '') {
-      return self::escape(number_format($value, $this->numeric_scale, $this->locale->decimal_point, $this->locale->thousands_sep));
+      return self::escape(number_format($value, $this->column['numeric_scale'], $this->locale->decimal_point, $this->locale->thousands_sep));
     }
   }
 
-  public function validate(&$value, $prefix = '') {
-    if (!parent::validate($value, $prefix)) return false;
+  public function validate(&$value, &$error) {
+    if (!parent::validate($value, $error)) return false;
 
     if (is_null($value) || $value === '') return true;
 
     // support both decimal point and monetary decimal point as separator
     $pattern = '/^[+-]?\d+['.$this->locale->decimal_point.$this->locale->mon_decimal_point.']?\d*$/';
     if (!preg_match($pattern, $value)) {
-      Messages::error_item(sprintf(_('%s must be a number.'), $this->label($prefix)));
+      $error = sprintf(_('%s must be a number.'), $this->label());
       return false;
     }
 
     if ($value > $this->max) {
-      Messages::error_item(sprintf(_('%s cannot be bigger than %s.'), $this->label($prefix), $this->max));
+      $error = sprintf(_('%s cannot be bigger than %s.'), $this->label(), $this->max);
       return false;
     }
 
     if ($value < $this->min) {
-      Messages::error_item(sprintf(_('%s cannot be smaller than %s.'), $this->label($prefix), $this->min));
+      $error = sprintf(_('%s cannot be smaller than %s.'), $this->label(), $this->min);
       return false;
     }
 

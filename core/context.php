@@ -41,10 +41,10 @@ class Context {
     if (count($this->segments) > 0) {
       // camelcase last element
       $last = count($this->segments) - 1;
-      $this->segments[$last] = String::camelize($this->segments[$last]);
+      $this->segments[$last] = String::camelcase($this->segments[$last]);
     } else {
       // use default resource
-      $this->segments[] = String::camelize(DEFAULT_RESOURCE);
+      $this->segments[] = String::camelcase(DEFAULT_RESOURCE);
     }
 
     $this->classbase = implode(NAMESPACE_SEPARATOR, $this->segments);
@@ -64,11 +64,11 @@ class Context {
   }
 
   public function get_view_class() {
-    $view_class = VIEW_NAMESPACE.NAMESPACE_SEPARATOR.$this->classbase.String::camelize($this->action);
+    $view_class = VIEW_NAMESPACE.NAMESPACE_SEPARATOR.$this->classbase.String::camelcase($this->action);
     if (class_exists($view_class)) {
       return $view_class;
     }
-    return VIEW_NAMESPACE.NAMESPACE_SEPARATOR.String::camelize($this->action);
+    return VIEW_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($this->action);
   }
 
   public function get_model_class() {
@@ -81,7 +81,7 @@ class Context {
   }
 
   public function get_database_table() {
-    return str_replace(NAMESPACE_SEPARATOR, SCHEMA_SEPARATOR ,String::uncamelize($this->classbase));
+    return str_replace(NAMESPACE_SEPARATOR, SCHEMA_SEPARATOR ,String::underscore($this->classbase));
   }
 
   public function get_layout_class() {

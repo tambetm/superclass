@@ -1,7 +1,9 @@
 <?php
 namespace core;
 
-class Database {
+use core\String;
+
+abstract class Database implements \interfaces\Database {
 
   static $databases = array();
 
@@ -9,27 +11,34 @@ class Database {
     if (isset(self::$databases[$name])) {
       return self::$databases[$name];
     } else {
-      return self::$databases[$name] = new Database($name);      
+      include('config/database.php');
+      if (!isset($config[$name])) throw new \InvalidArgumentException("Missing configuration for database '$name'");
+      $config = $config[$name];
+      if (!is_array($config)) throw new \InvalidArgumentException("Configuration for database '$name' is invalid");
+      if (!isset($config['driver'])) throw new \InvalidArgumentException("Missing driver for database '$name'");
+      $driver = $config['driver'];
+      unset($config['driver']);
+      $driver_class = DATABASE_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($driver);
+      if (!class_exists($driver_class)) throw new \InvalidArgumentException("Driver class does not exist for driver '$driver'");
+      return self::$databases[$name] = new $driver_class($config);
     }
   }
 
   protected $config;
-  protected $connection;
 
-  public function __construct($name) {
-    include('config/database.php');
-    $this->config = $config[$name];
-
-    $connection_string = '';
-    if (is_array($this->config)) {
-      foreach ($this->config as $name => $value) {
-        if ($connection_string != '') $connection_string .= ' ';
-        $connection_string .= "$name=$value";
-      }
-    }
-    
-    $this->connection = pg_connect($connection_string);
+  public function __construct($config) {
+    $this->config = $config;
+    $this->connect();
   }
+
+  // have to be implemented by drivers
+  //abstract public function escape($value, $type);
+  abstract protected function connect();
+  abstract protected function query($sql);
+  abstract protected function query_params($sql, $params);
+  abstract protected function fetch_all($result);
+  abstract protected function fetch_row($result);
+  abstract protected function affected_rows($result);
 
   protected function extract_schema($table) {
     if (strpos($table, '.') !== false) {
@@ -38,87 +47,47 @@ class Database {
       return array('public', $table);
     }
   }
-  
-  public function meta_data($table) {
+
+  // might need to be reimplemented by drivers
+  public function columns($table) {
     list($schema, $table) = $this->extract_schema($table);
-    $result = pg_query_params($this->connection, 'select * from information_schema.columns where table_schema = $1 and table_name = $2', array($schema, $table));
+    $result = $this->query_params('select * from information_schema.columns where table_schema = $1 and table_name = $2', array($schema, $table));
     return $this->fetch_hashed_rows($result, 'column_name');
   }
 
+  // might need to be reimplemented by drivers
   public function primary_key($table) {
     list($schema, $table) = $this->extract_schema($table);
-    $result = pg_query_params($this->connection, 'select kcu.* from information_schema.key_column_usage kcu join information_schema.table_constraints tc using (constraint_catalog, constraint_schema, constraint_name) where kcu.table_schema = $1 and kcu.table_name = $2 and tc.constraint_type = $3', array($schema, $table, 'PRIMARY KEY'));
+    $result = $this->query_params('select kcu.* from information_schema.key_column_usage kcu join information_schema.table_constraints tc using (constraint_catalog, constraint_schema, constraint_name) where kcu.table_schema = $1 and kcu.table_name = $2 and tc.constraint_type = $3', array($schema, $table, 'PRIMARY KEY'));
     return $this->fetch_hashed_rows($result, 'column_name');
   }
 
+  // helper
   protected function fetch_hashed_rows($result, $field) {
     $hash = array();
-    while ($row = pg_fetch_assoc($result)) {
+    while ($row = $this->fetch_row($result)) {
       $hash[$row[$field]] = $row;
     }
     return $hash;
   }
 
-  public function escape($value, $type = 'varchar') {
-    if (is_null($value) || $value === '') {
-      return 'null';
-    }
-    switch ($type) {
-      case 'int2':
-      case 'int4':
-      case 'int8':
-      case 'smallint':
-      case 'integer':
-      case 'bigint':
-      case 'serial':
-      case 'bigserial':
-        return strval(intval($value));
-
-      case 'real':
-      case 'double precision':
-        return strval(floatval($value));
-
-      case 'bytea':
-        return "'".pg_escape_bytea($this->connection, $value)."'";
-
-      case 'decimal':
-      case 'numeric':
-        // TODO: better check for numeric, what to do when not?
-        //return is_numeric($value) ? strval($value) : 'null';
-      case 'varchar':
-      case 'char':
-      case 'text':
-      case 'money':
-      case 'timestamp':
-      case 'timestamp with time zone':
-      case 'date':
-      case 'time':
-      case 'interval':
-      case 'boolean':
-      default:
-        return "'".pg_escape_string($this->connection, $value)."'";
-    }
-  }
-
-  protected function query($sql) {
-    return pg_query($this->connection, $sql);
-  }
-
+  // for inserts, updates and deletes, returns affected rows
   public function execute($sql) {
     $result = $this->query($sql);
-    return pg_affected_rows($result);
+    // no need to check $result, because database errors trigger fatal error
+    return $this->affected_rows($result);
   }
 
   public function select_all($sql) {
     $result = $this->query($sql);
-    if (!$result) return false;
-    return pg_fetch_all($result);
+    // no need to check $result, because database errors trigger fatal error
+    return $this->fetch_all($result);
   }
 
   public function select_row($sql) {
     $result = $this->query($sql);
-    if (!$result) return false;
-    return pg_fetch_assoc($result);
+    // no need to check $result, because database errors trigger fatal error
+    return $this->fetch_row($result);
   }
 
   public function begin() {
@@ -131,9 +100,5 @@ class Database {
 
   public function rollback() {
     return $this->execute('rollback');
-  }
-
-  public function __destruct() {
-    pg_close($this->connection);
   }
 }
