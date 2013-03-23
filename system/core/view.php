@@ -1,4 +1,4 @@
 <?php
 namespace core;
 
-abstract class View extends \base\View {}
+abstract class View extends base\View {}

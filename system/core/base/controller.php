@@ -1,7 +1,7 @@
 <?php
-namespace base;
+namespace core\base;
 
-use core\Log;
+use helpers\Session;
 
 class Controller implements \interfaces\Controller {
 
@@ -9,6 +9,7 @@ class Controller implements \interfaces\Controller {
 
   function __construct($context) {
     $this->context = $context;
+    Session::start();
   }
 
   function __call($name, $arguments) {

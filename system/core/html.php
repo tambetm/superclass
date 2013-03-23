@@ -1,4 +1,4 @@
 <?php
 namespace core;
 
-class HTML extends \base\HTML {}
+class HTML extends base\HTML {}

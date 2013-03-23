@@ -2,7 +2,7 @@
 namespace fields;
 
 use core\Field;
-use core\Messages;
+use helpers\Messages;
 
 class Boolean extends Field {
 

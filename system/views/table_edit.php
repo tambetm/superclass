@@ -2,9 +2,9 @@
 namespace views;
 
 use views\Table;
-use core\URL;
-use core\Messages;
-use core\Log;
+use helpers\URL;
+use helpers\Messages;
+use helpers\Response;
 
 class TableEdit extends Table {
 
@@ -26,7 +26,7 @@ class TableEdit extends Table {
   public function post() {
     if (!isset($_POST[$this->table]['selector']) || !is_array($_POST[$this->table]['selector'])) {
       Messages::alert(_('You did not choose any rows.'));
-      URL::redirect(URL::current_url());
+      Response::redirect(URL::current_url());
     }
 
     if (!isset($_POST[$this->table]) || !is_array($_POST[$this->table])) {
@@ -83,7 +83,7 @@ class TableEdit extends Table {
       if ($updates > 0) $stats[] = sprintf(ngettext('%d record updated.', '%d records updated.', $updates), $updates);
       if ($deletes > 0) $stats[] = sprintf(ngettext('%d record deleted.', '%d records deleted.', $deletes), $deletes);
       Messages::success(_('Changes saved successfully.'), $stats);
-      URL::redirect(URL::current_url());
+      Response::redirect(URL::current_url());
     } else {
       $this->db->rollback();
       Messages::error(_('Error saving changes.'), $errors);

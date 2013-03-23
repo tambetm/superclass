@@ -1,5 +1,5 @@
 <?php
-namespace base;
+namespace core\base;
 
 use core\Database;
 use helpers\String;

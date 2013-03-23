@@ -1,5 +1,5 @@
 <?php
-namespace base;
+namespace helpers\base;
 
 class URL {
 
@@ -33,13 +33,5 @@ class URL {
 
   public static function host_url() {
     return self::protocol().self::host_name();
-  }
-
-  public static function redirect($url) {
-    if (strpos($url, 'http:') !== 0) {
-      $url = self::base_url().$url;
-    }
-    header('Location: '.$url);
-    exit;
   }
 }

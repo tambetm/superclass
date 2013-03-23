@@ -1,4 +1,4 @@
 <?php
 namespace core;
 
-class Context extends \base\Context {}
+class Context extends base\Context {}

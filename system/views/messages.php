@@ -2,7 +2,7 @@
 namespace views;
 
 use core\HTML;
-use core\Messages as core_Messages;
+use helpers\Messages as helpers_Messages;
 
 class Messages extends HTML {
   
@@ -12,7 +12,7 @@ class Messages extends HTML {
   protected $item;
   
   public function __construct() {
-    $this->messages = core_Messages::messages();
+    $this->messages = helpers_Messages::messages();
   }
 
   public function render() {

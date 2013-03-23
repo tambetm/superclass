@@ -1,4 +1,4 @@
 <?php
 namespace core;
 
-class ErrorHandler extends \base\ErrorHandler {}
+class ErrorHandler extends base\ErrorHandler {}

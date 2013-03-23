@@ -2,7 +2,6 @@
 namespace views;
 
 use views\TableEdit;
-use core\URL;
 
 class YhistudTableEdit extends TableEdit {
 

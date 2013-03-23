@@ -20,7 +20,7 @@ interface Database {
   public function commit();
   public function rollback();
 
-  // internal functions
+  // abstract functions, should be implemented by driver
   //protected function connect();
   //protected function query();
   //protected function fetch_all();

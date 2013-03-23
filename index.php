@@ -3,12 +3,14 @@
 // include config
 require_once('config/php.php');
 require_once('config/framework.php');
-require_once('helpers/string.php'); // HACK
+// HACK
+require_once('helpers/base/string.php');
+require_once('helpers/string.php');
 
 use helpers\String;
 use core\ErrorHandler;
 use core\Context;
-use core\Url;
+use helpers\Url;
 
 // set up class autoloading
 function __autoload($class_name) {

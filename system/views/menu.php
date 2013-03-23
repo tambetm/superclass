@@ -2,7 +2,7 @@
 namespace views;
 
 use core\HTML;
-use core\URL;
+use helpers\URL;
 
 class Menu extends HTML {
 

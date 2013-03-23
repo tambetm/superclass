@@ -1,4 +1,4 @@
 <?php
 namespace core;
 
-class Controller extends \base\Controller {}
+class Controller extends base\Controller {}

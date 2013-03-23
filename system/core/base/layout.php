@@ -1,5 +1,5 @@
 <?php
-namespace base;
+namespace core\base;
 
 abstract class Layout extends \core\HTML implements \interfaces\Layout {
 

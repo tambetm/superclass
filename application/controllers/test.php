@@ -1,10 +1,10 @@
 <?php
 namespace controllers;
 
-use core\BaseController;
+use core\Controller;
 
-class Test extends BaseController {
+class Test extends Controller {
   public function table() {
-    echo dirname(__DIR__);
+    phpinfo();
   }
 }

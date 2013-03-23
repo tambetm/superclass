@@ -2,7 +2,6 @@
 namespace views;
 
 use views\Table;
-use core\URL;
 
 class YhistudTable extends Table {
 

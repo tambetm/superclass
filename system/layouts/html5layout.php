@@ -2,20 +2,13 @@
 namespace layouts;
 
 use core\Layout;
-use core\Locale;
+use helpers\Locale;
 
 abstract class HTML5Layout extends Layout {
 
-  protected $locale;
-
-  public function __construct($view) {
-    parent::__construct($view);
-    $this->locale = Locale::instance();
-  }
-
   public function render() {
     $this->doctype();
-    $this->_html(array('lang' => $this->locale->get_primary_language()));
+    $this->_html(array('lang' => Locale::get_primary_language()));
   }
 
   public function doctype() {
@@ -37,7 +30,7 @@ abstract class HTML5Layout extends Layout {
   abstract public function title();
 
   public function head_metas() {
-    $this->_meta(array('charset' => $this->locale->get_charset()));
+    $this->_meta(array('charset' => Locale::get_charset()));
   }
 
   public function head_links() {

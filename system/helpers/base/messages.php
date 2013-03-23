@@ -1,16 +1,11 @@
 <?php
-namespace base;
+namespace helpers\base;
 
-use core\Session;
+use helpers\Session as _Session;
 
 class Messages {
 
-  static public $headings;
-  static protected $session;
-
-  static public function init() {
-    self::$session = Session::instance();
-  }
+  const SESSION_MESSAGES_NAME = 'messages';
 
   static public function message($type, $title, $items = null) {
     // make up a message
@@ -19,6 +14,7 @@ class Messages {
       'title' => $title,
     );
     if (!is_null($items)){
+      // if third parameter is array, it is items, otherwise text
       if (is_array($items)) {
         $message['items'] = $items;
       } else {
@@ -27,15 +23,15 @@ class Messages {
     }
 
     // add message to list
-    $messages = self::$session->messages;
+    $messages = _Session::get(self::SESSION_MESSAGES_NAME);
     $messages[] = $message;
-    self::$session->messages = $messages;
+    _Session::set(self::SESSION_MESSAGES_NAME, $messages);
   }
 
   static public function messages() {
     // return messages and purge them from session
-    $messages = self::$session->messages;
-    unset(self::$session->messages);
+    $messages = _Session::get(self::SESSION_MESSAGES_NAME);
+    _Session::remove(self::SESSION_MESSAGES_NAME);
     return $messages;
   }
 
@@ -63,5 +59,3 @@ class Messages {
     self::message('debug', $message, $items);
   }
 }
-
-Messages::init();

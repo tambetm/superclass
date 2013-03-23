@@ -1,8 +1,8 @@
 <?php
-namespace base;
+namespace core\base;
 
 use layouts\Error;
-use core\Messages;
+use helpers\Messages;
 
 class ErrorHandler {
 
@@ -10,7 +10,7 @@ class ErrorHandler {
   protected $cwd;
 
   public function __construct() {
-    include('config/errorhandler.php');
+    include('config/error_handler.php');
     $this->config = $config;
     $this->cwd = getcwd();
   }

@@ -1,5 +1,5 @@
 <?php
-namespace base;
+namespace core\base;
 
 class HTML {
 

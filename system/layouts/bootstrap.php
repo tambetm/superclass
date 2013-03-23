@@ -2,7 +2,7 @@
 namespace layouts;
 
 use layouts\HTML5Layout;
-use core\URL;
+use helpers\URL;
 use models\GlobalMenu;
 use views\Menu;
 use views\Messages;

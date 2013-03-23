@@ -1,7 +1,7 @@
 <?php
-namespace base;
+namespace core\base;
 
-use core\URL;
+use helpers\URL;
 use helpers\String;
 
 class Context {

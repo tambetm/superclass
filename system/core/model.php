@@ -1,4 +1,4 @@
 <?php
 namespace core;
 
-class Model extends \base\Model {}
+class Model extends base\Model {}
