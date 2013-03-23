@@ -38,7 +38,7 @@ class ErrorHandler {
   public function handle_exception($exception, $errno = E_ERROR) {
     // check that errors haven't been suppressed with @ modifier
     if ($errno & error_reporting()) {
-      $error = $exception->getMessage()." in ".$exception->getFile()." line ".$exception->getLine()."\n".$exception->getTraceAsString();
+      $error = $exception->getMessage()." in ".$exception->getFile()." on line ".$exception->getLine()."\n".$exception->getTraceAsString();
 
       // log error
       error_log($error);
@@ -58,7 +58,7 @@ class ErrorHandler {
         $layout->render();
         exit;
       } else if (ini_get('display_errors')) { // display errors, if enabled
-        Messages::log('', $error);
+        Messages::log(get_class($exception), $error);
       }
     }
   }

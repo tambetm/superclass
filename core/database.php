@@ -1,7 +1,7 @@
 <?php
 namespace core;
 
-use core\String;
+use helpers\String;
 
 abstract class Database implements \interfaces\Database {
 

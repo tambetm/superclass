@@ -3,9 +3,9 @@
 // include config
 require_once('config/php.php');
 require_once('config/framework.php');
-require_once('core/string.php'); // HACK
+require_once('helpers/string.php'); // HACK
 
-use core\String;
+use helpers\String;
 use core\Url;
 
 // set up class autoloading

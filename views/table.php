@@ -2,7 +2,6 @@
 namespace views;
 
 use core\BaseView;
-use core\String;
 
 class Table extends BaseView {
 

@@ -2,7 +2,7 @@
 namespace core;
 
 use core\URL;
-use core\String;
+use helpers\String;
 
 class Context {
   

@@ -3,7 +3,7 @@ namespace core;
 
 use interfaces\Model;
 use core\Database;
-use core\String;
+use helpers\String;
 
 class BaseModel implements Model {
 

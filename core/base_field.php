@@ -2,7 +2,7 @@
 namespace core;
 
 use core\HTML;
-use core\String;
+use helpers\String;
 use interfaces\Field;
 
 abstract class BaseField extends HTML implements Field {
