@@ -7,10 +7,13 @@
 </IfModule>
 
 <IfModule mod_php5.c>
-  # one day we will use this to differentiate between system and
-  # application classes. and to move php away from web directory.
-  #php_value include_path ".:/usr/local/lib/php"
+  # This says, that application classes overload system classes. If there is 
+  # company-wide repository of views and models, add path to that between 
+  # application and system. If you want to move PHP files away from web,
+  # make all include paths absolute and leave only index.php and assets here.
+  # In Windows use semicolon (;) as path separator, in Linux use colon (:).
+  php_value include_path "application;system"
 
-  # make our best attempt to enable short tags
+  # Make our best attempt to enable short tags.
   php_value short_open_tag 1
 </IfModule>
