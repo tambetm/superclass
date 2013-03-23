@@ -1,10 +1,9 @@
 <?php
-namespace core;
+namespace base;
 
-use interfaces\Controller;
 use core\Log;
 
-class BaseController implements Controller {
+class Controller implements \interfaces\Controller {
 
   var $context;
 

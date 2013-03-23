@@ -1,9 +1,9 @@
 <?php
 namespace fields;
 
-use core\BaseField;
+use core\Field;
 
-class TimestampWithoutTimeZone extends BaseField {
+class TimestampWithoutTimeZone extends Field {
 
   public function control($name, $default = '', $attrs = array()) {
     $attributes = array('type' => 'datetime-local');

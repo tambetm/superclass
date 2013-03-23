@@ -1,11 +1,10 @@
 <?php
-namespace core;
+namespace base;
 
-use interfaces\Model;
 use core\Database;
 use helpers\String;
 
-class BaseModel implements Model {
+class Model implements \interfaces\Model {
 
   protected $db;
   protected $table;

@@ -1,9 +1,9 @@
 <?php
 namespace views;
 
-use core\BaseView;
+use core\View;
 
-class Table extends BaseView {
+class Table extends View {
 
   protected $config;
   protected $fields;

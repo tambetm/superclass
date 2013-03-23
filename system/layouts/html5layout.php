@@ -1,10 +1,10 @@
 <?php
 namespace layouts;
 
-use core\BaseLayout;
+use core\Layout;
 use core\Locale;
 
-abstract class HTML5Layout extends BaseLayout {
+abstract class HTML5Layout extends Layout {
 
   protected $locale;
 

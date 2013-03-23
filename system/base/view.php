@@ -1,10 +1,9 @@
 <?php
-namespace core;
+namespace base;
 
 use core\HTML;
-use interfaces\View;
 
-abstract class BaseView extends HTML implements View {
+abstract class View extends HTML implements \interfaces\View {
 
   protected $model;
 

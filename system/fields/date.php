@@ -1,9 +1,9 @@
 <?php
 namespace fields;
 
-use core\BaseField;
+use core\Field;
 
-class Date extends BaseField {
+class Date extends Field {
 
   public function control($name, $default = '', $attrs = array()) {
     $attributes = array('type' => 'date');

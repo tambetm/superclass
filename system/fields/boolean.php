@@ -1,10 +1,10 @@
 <?php
 namespace fields;
 
-use core\BaseField;
+use core\Field;
 use core\Messages;
 
-class Boolean extends BaseField {
+class Boolean extends Field {
 
   public function control($name, $default = 'f', $attrs = array()) {
     $this->_input(array(

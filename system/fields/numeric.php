@@ -1,11 +1,11 @@
 <?php
 namespace fields;
 
-use core\BaseField;
+use core\Field;
 use core\Locale;
 use core\Messages;
 
-class Numeric extends BaseField {
+class Numeric extends Field {
 
   protected $locale;
   protected $max;

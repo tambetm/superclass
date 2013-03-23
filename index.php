@@ -6,6 +6,8 @@ require_once('config/framework.php');
 require_once('helpers/string.php'); // HACK
 
 use helpers\String;
+use core\ErrorHandler;
+use core\Context;
 use core\Url;
 
 // set up class autoloading
@@ -22,15 +24,13 @@ function __autoload($class_name) {
 }
 
 // set up error handling.
-$error_handler_class = ERROR_HANDLER_CLASS; 
-$errorhandler = new $error_handler_class();
+$errorhandler = new ErrorHandler();
 set_error_handler(array($errorhandler, 'handle_error'));
 set_exception_handler(array($errorhandler, 'handle_exception'));
 register_shutdown_function(array($errorhandler, 'handle_fatal_error'));
 
 // extract class name and method name from URL path
-$context_class = CONTEXT_CLASS;
-$context = new $context_class(URL::current_url());
+$context = new Context(URL::current_url());
 $class = $context->get_controller_class();
 $method = $context->get_controller_method();
 

@@ -1,11 +1,9 @@
 <?php
-namespace core;
+namespace base;
 
-use core\HTML;
 use helpers\String;
-use interfaces\Field;
 
-abstract class BaseField extends HTML implements Field {
+abstract class Field extends \core\HTML implements \interfaces\Field {
   protected $column;
   
   public function __construct($column) {
