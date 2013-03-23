@@ -1,28 +1,27 @@
 <?php
-namespace types;
+namespace fields;
 
-use core\BaseType;
+use fields\String;
 
-class Date extends BaseType {
+class Text extends String {
 
   public function control($name, $default = '', $attrs = array()) {
     $attributes = array(
-      'type' => 'date',
       'name' => $name,
     );
+    if (!is_null($this->character_maximum_length)) {
+      $attributes['maxlength'] = $this->character_maximum_length;
+    }
     if ($this->is_nullable == 'NO') {
       $attributes['required'] = 'required';
     }
     if ($this->is_updatable == 'NO') {
       $attributes['readonly'] = 'readonly';
     }
-    if ($default !== '') {
-      $attributes['value'] = $default;
-    }
-    $this->_input(array_merge($attributes, $attrs));
+    $this->_textarea(array_merge($attributes, $attrs), null, $default);
   }
 
   public function kind() {
-    return self::KIND_DATE;
+    return self::KIND_TEXT;
   }
 }

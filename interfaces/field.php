@@ -1,7 +1,7 @@
 <?php
 namespace interfaces;
 
-interface Type {
+interface Field {
   const KIND_STRING = 'string';
   const KIND_TEXT = 'text';
   const KIND_NUMBER = 'number';

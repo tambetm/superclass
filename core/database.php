@@ -109,10 +109,16 @@ class Database {
     return pg_affected_rows($result);
   }
 
-  public function select($sql) {
+  public function select_all($sql) {
     $result = $this->query($sql);
     if (!$result) return false;
     return pg_fetch_all($result);
+  }
+
+  public function select_row($sql) {
+    $result = $this->query($sql);
+    if (!$result) return false;
+    return pg_fetch_assoc($result);
   }
 
   public function begin() {

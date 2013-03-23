@@ -17,6 +17,9 @@ class BaseModel implements Model {
   protected $order_by = '';
   protected $limit = 0;
   protected $offset = 0;
+  protected $set = '';
+  protected $names = '';
+  protected $values = '';
 
   public function __construct($table) {
     $this->table = $table;
@@ -38,7 +41,7 @@ class BaseModel implements Model {
 
   public function field($name) {
     if (!isset($this->fields[$name])) {
-      $class = TYPE_NAMESPACE.NAMESPACE_SEPARATOR.str_replace(' ', '', ucwords($this->meta[$name]['data_type']));
+      $class = FIELD_NAMESPACE.NAMESPACE_SEPARATOR.str_replace(' ', '', ucwords($this->meta[$name]['data_type']));
       $this->fields[$name] = new $class($this->meta[$name]);
     }
     return $this->fields[$name];
@@ -60,14 +63,14 @@ class BaseModel implements Model {
   public function values($field, $value = null) {
     if (is_array($field)) {
       $fields = array_intersect_key($field, $this->meta);
+      $this->names = implode(', ', array_keys($fields));
       $fields = array_map(array($this, 'escape_value'), array_keys($fields), $fields);
-      $this->fields = implode(', ', array_keys($fields));
       $this->values = implode(', ', $fields);
     } elseif (isset($this->meta[$field])) {
       if ($this->values != '') $this->values .= ', ';
       $this->values .= $this->escape_value($field, $value);
-      if ($this->fields != '') $this->fields .= ', ';
-      $this->fields .= $field;
+      if ($this->names != '') $this->names .= ', ';
+      $this->names .= $field;
     }
     return $this;
   }
@@ -159,12 +162,12 @@ class BaseModel implements Model {
     if ($this->limit != 0) $sql .= " LIMIT $this->limit";
     if ($this->offset != 0) $sql .= " OFFSET $this->offset";
 
-    return $this->db->select($sql);
+    return $this->db->select_all($sql);
   }
 
   public function insert($data) {
     $this->values($data);
-    $sql = "INSERT INTO $this->table ($this->fields) VALLUES ($this->values)";
+    $sql = "INSERT INTO $this->table ($this->names) VALUES ($this->values)";
     return $this->db->execute($sql);
   }
 
@@ -191,5 +194,25 @@ class BaseModel implements Model {
       }
     }
     return $success;
+  }
+
+  protected function escape_default($name, $value) {
+    return "$value AS $name";
+  }
+
+  public function defaults() {
+    foreach($this->meta as $name => $meta) {
+      $defaults[$name] = $meta['column_default'];
+    }
+    // exclude nulls to conserve database bandwidth
+    $defaults = array_filter($defaults);
+    $defaults = array_map(array($this, 'escape_default'), array_keys($defaults), $defaults);
+    $defaults = implode(', ', $defaults);
+    $sql = "SELECT $defaults";
+    $defaults = $this->db->select_row($sql);
+    // add nulls for all fields that didn't have default value
+    $nulls = array_fill_keys(array_keys($this->meta), null);
+    $defaults = array_merge($nulls, $defaults);
+    return $defaults;
   }
 }

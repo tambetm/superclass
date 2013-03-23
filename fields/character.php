@@ -1,7 +1,7 @@
 <?php
-namespace types;
+namespace fields;
 
-use types\String;
+use fields\String;
 
 class Character extends String {
 }

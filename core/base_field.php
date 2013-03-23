@@ -3,9 +3,9 @@ namespace core;
 
 use core\HTML;
 use core\String;
-use interfaces\Type;
+use interfaces\Field;
 
-abstract class BaseType extends HTML implements Type {
+abstract class BaseField extends HTML implements Field {
   protected $meta;
   
   public function __construct($meta) {
@@ -26,6 +26,25 @@ abstract class BaseType extends HTML implements Type {
 
   public function __unset($name) {
     unset($this->meta[$name]);
+  }
+
+  public function control($name, $default = '', $attrs = array()) {
+    $attributes = array(
+      'type' => 'text',
+      'name' => $name,
+    );
+    /*
+    if ($this->is_nullable == 'NO') {
+      $attributes['required'] = 'required';
+    }
+    if ($this->is_updatable == 'NO') {
+      $attributes['readonly'] = 'readonly';
+    }
+    */
+    if ($default !== '') {
+      $attributes['value'] = $default;
+    }
+    $this->_input(array_merge($attributes, $attrs));
   }
 
   public function output($value) {

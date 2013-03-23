@@ -44,11 +44,7 @@ class Messages extends HTML {
   }
 
   public function text() {
-    if ($this->message['type'] == 'log') {
-      echo $this->message['text'];
-    } else {
-      echo self::escape($this->message['text']);
-    }
+    echo self::escape($this->message['text']);
   }
 
   public function ul() {
@@ -58,7 +54,11 @@ class Messages extends HTML {
   }
 
   public function li() {
-    echo self::escape($this->item);
+    if ($this->message['type'] == 'log') {
+      echo $this->item;
+    } else {
+      echo self::escape($this->item);
+    }
   }
 
   public function script() {

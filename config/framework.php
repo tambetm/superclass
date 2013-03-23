@@ -1,27 +1,25 @@
 <?php
-
-// separators
-define('NAMESPACE_SEPARATOR', '\\');
-define('SCHEMA_SEPARATOR', '.');
-
-// core classes
-define('ERROR_HANDLER_CLASS', 'core\ErrorHandler');
-define('CONTEXT_CLASS', 'core\Context');
-define('DATABASE_CLASS', 'core_Database');
+// default resource and action (controller and method)
+define('DEFAULT_RESOURCE', 'yhistud');
+define('DEFAULT_ACTION', 'table');
+define('DEFAULT_METHOD', 'render');
 
 // base classes
+define('DEFAULT_LAYOUT_CLASS', 'layouts\Bootstrap');
 define('DEFAULT_CONTROLLER_CLASS', 'core\BaseController');
 define('DEFAULT_MODEL_CLASS', 'core\BaseModel');
-define('DEFAULT_LAYOUT_CLASS', 'layouts\Bootstrap');
+
+// core classes
+define('DATABASE_CLASS', 'core_Database');
+define('CONTEXT_CLASS', 'core\Context');
+define('ERROR_HANDLER_CLASS', 'core\ErrorHandler');
 
 // namespaces (folders)
 define('CONTROLLER_NAMESPACE', 'controllers');
 define('MODEL_NAMESPACE', 'models');
 define('VIEW_NAMESPACE', 'views');
-define('TYPE_NAMESPACE', 'types');
-define('ACTION_NAMESPACE', 'actions');
+define('FIELD_NAMESPACE', 'fields');
 
-// default resource and action (controller and method)
-define('DEFAULT_CONTROLLER', 'Yhistud');
-define('DEFAULT_METHOD', 'table');
-define('DEFAULT_REGION', 'content');
+// separators
+define('NAMESPACE_SEPARATOR', '\\');
+define('SCHEMA_SEPARATOR', '.');

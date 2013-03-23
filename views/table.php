@@ -32,7 +32,7 @@ class Table extends BaseView {
   }
 
   public function render() {
-    $attributes = array();
+    $attributes = array('id' => $this->model->table());
     if (isset($this->config['class'])) {
       $attributes['class'] = $this->config['class'];
     }
@@ -44,7 +44,7 @@ class Table extends BaseView {
     $this->_table_thead();
     $this->_table_tbody();
     // output footer only if it has contents
-    $this->_table_tfoot(null, null, true);
+    $this->_table_tfoot();
   }
 
   protected function table_colgroup() {

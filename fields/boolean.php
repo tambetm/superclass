@@ -1,12 +1,12 @@
 <?php
-namespace types;
+namespace fields;
 
-use core\BaseType;
+use core\BaseField;
 use core\Messages;
 
-class Boolean extends BaseType {
+class Boolean extends BaseField {
 
-  public function control($name, $checked = false, $attrs = array()) {
+  public function control($name, $default = 'f', $attrs = array()) {
     $this->_input(array(
       'type' => 'hidden',
       'name' => $name,
@@ -14,16 +14,12 @@ class Boolean extends BaseType {
     ));
     $attributes = array(
       'type' => 'checkbox',
-      'name' => $name,
-      'value' => 't',
+      'required' => null,
     );
-    if ($this->is_updatable == 'NO') {
-      $attributes['readonly'] = 'readonly';
-    }
-    if ($checked) {
+    if ($default == 't') {
       $attributes['checked'] = 'checked';
     }
-    $this->_input(array_merge($attributes, $attrs));
+    parent::control($name, 't', array_merge($attributes, $attrs));
   }
 
   public function validate(&$value, $prefix = '') {

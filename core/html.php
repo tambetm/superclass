@@ -118,8 +118,10 @@ class HTML {
     $attrs = '';
     if (isset($attributes)) {
       foreach ($attributes as $name => $value) {
-        // escape attribute values for convenience
-        $attrs .= ' '.$name.'="'.self::escape($value).'"';
+        if (!is_null($value)) {
+          // escape attribute values for convenience
+          $attrs .= ' '.$name.'="'.self::escape($value).'"';
+        }
       }
     }
 

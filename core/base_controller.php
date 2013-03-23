@@ -2,6 +2,7 @@
 namespace core;
 
 use interfaces\Controller;
+use core\Log;
 
 class BaseController implements Controller {
 
@@ -12,15 +13,8 @@ class BaseController implements Controller {
   }
 
   function __call($name, $arguments) {
-    // determine view class
+    // determine view class, model class and database table
     $view_class = $this->context->get_view_class();
-    if (!$view_class) {
-      header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
-      trigger_error("View '$view_class' doesn't exist for ".$this->context->url, E_USER_ERROR);
-      exit;
-    }
-
-    // determine model class and database table
     $model_class = $this->context->get_model_class();
     $table = $this->context->get_database_table();
 
@@ -47,7 +41,17 @@ class BaseController implements Controller {
     $layout_class = $this->context->get_layout_class();
     $layout = new $layout_class($view);
 
-    // render layout
-    call_user_func_array(array($layout, 'render'), $arguments);  
+    $method = $this->context->get_method();
+    if (method_exists($layout, $method)) {
+      // render layout
+      call_user_func_array(array($layout, $method), $arguments);  
+    } elseif (method_exists($view, $method)) {
+      // render only view
+      call_user_func_array(array($view, $method), $arguments);  
+    } else {
+      header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
+      Log::error("Method '$method' doesn't exist in view or layout");
+      exit;
+    }
   }
 }

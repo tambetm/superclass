@@ -6,6 +6,7 @@ require_once('config/framework.php');
 require_once('core/string.php'); // HACK
 
 use core\String;
+use core\Url;
 
 // set up class autoloading
 function __autoload($class_name) {
@@ -29,7 +30,7 @@ register_shutdown_function(array($errorhandler, 'handle_fatal_error'));
 
 // extract class name and method name from URL path
 $context_class = CONTEXT_CLASS;
-$context = new $context_class();
+$context = new $context_class(URL::current_url());
 $class = $context->get_controller_class();
 $method = $context->get_controller_method();
 

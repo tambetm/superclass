@@ -6,37 +6,52 @@ use core\String;
 
 class Context {
   
-  public $url;
+  protected $url;
   protected $segments;
+  protected $action;
   protected $method;
-  protected $class;
+  protected $classbase;
 
-  public function __construct($url = null) {
-    if (is_null($url)) {
-      $url = URL::current_url();
-    }
+  public function __construct($url) {
     $this->url = $url;
-    $this->segments = array_filter(explode('/', strtolower(trim($url, '/'))));
 
-    if (count($this->segments) > 0) {
-      // uppercase first letter of last element
-      $last = count($this->segments) - 1;
-      $this->segments[$last] = String::camelize($this->segments[$last]);
-    } else {
-      $this->segments[] = DEFAULT_CONTROLLER;
-    }
+    // trim slashes and convert url to lowercase, just in case.
+    $url = strtolower(trim($url, '/'));
 
-    if (count($this->segments) > 1) {
-      $this->method = array_pop($this->segments);
+    // extract view method for partial page rendering
+    $pos = strpos($url, ';');
+    if ($pos !== false) {
+      $this->method = substr($url, $pos + 1);
+      $url = substr($url, 0, $pos);
     } else {
       $this->method = DEFAULT_METHOD;
     }
 
-    $this->class = implode(NAMESPACE_SEPARATOR, $this->segments);
+    // split url into segments, ignoring empty segments.
+    $this->segments = array_filter(explode('/', $url));
+
+    // last part is action (view name or controller method)
+    if (count($this->segments) > 1) {
+      $this->action = array_pop($this->segments);
+    } else {
+      $this->action = DEFAULT_ACTION;
+    }
+
+    // everything remaining is resource (table and schema, or alternatively controller and namespace)
+    if (count($this->segments) > 0) {
+      // camelcase last element
+      $last = count($this->segments) - 1;
+      $this->segments[$last] = String::camelize($this->segments[$last]);
+    } else {
+      // use default resource
+      $this->segments[] = String::camelize(DEFAULT_RESOURCE);
+    }
+
+    $this->classbase = implode(NAMESPACE_SEPARATOR, $this->segments);
   }
 
   public function get_controller_class() {
-    $controller_class = CONTROLLER_NAMESPACE.NAMESPACE_SEPARATOR.$this->class;
+    $controller_class = CONTROLLER_NAMESPACE.NAMESPACE_SEPARATOR.$this->classbase;
     if (class_exists($controller_class)) {
       return $controller_class;
     } else {
@@ -45,27 +60,19 @@ class Context {
   }
 
   public function get_controller_method() {
-    return $this->method;
+    return $this->action;
   }
 
   public function get_view_class() {
-    $view_class = VIEW_NAMESPACE.NAMESPACE_SEPARATOR.$this->class.String::camelize($this->method);
+    $view_class = VIEW_NAMESPACE.NAMESPACE_SEPARATOR.$this->classbase.String::camelize($this->action);
     if (class_exists($view_class)) {
       return $view_class;
     }
-    return VIEW_NAMESPACE.NAMESPACE_SEPARATOR.String::camelize($this->method);
-  }
-
-  public function get_action_class() {
-    $action_class = ACTION_NAMESPACE.NAMESPACE_SEPARATOR.$this->class.String::camelize($this->method);
-    if (class_exists($action_class)) {
-      return $action_class;
-    }
-    return ACTION_NAMESPACE.NAMESPACE_SEPARATOR.String::camelize($this->method);
+    return VIEW_NAMESPACE.NAMESPACE_SEPARATOR.String::camelize($this->action);
   }
 
   public function get_model_class() {
-    $model_class = MODEL_NAMESPACE.NAMESPACE_SEPARATOR.$this->class;
+    $model_class = MODEL_NAMESPACE.NAMESPACE_SEPARATOR.$this->classbase;
     if (class_exists($model_class)) {
       return $model_class;
     } else {
@@ -74,11 +81,14 @@ class Context {
   }
 
   public function get_database_table() {
-    return str_replace(NAMESPACE_SEPARATOR, SCHEMA_SEPARATOR ,String::uncamelize($this->class));
+    return str_replace(NAMESPACE_SEPARATOR, SCHEMA_SEPARATOR ,String::uncamelize($this->classbase));
   }
 
   public function get_layout_class() {
     return DEFAULT_LAYOUT_CLASS;
   }
 
+  public function get_method() {
+    return $this->method;
+  }
 }

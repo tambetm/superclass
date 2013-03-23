@@ -1,11 +1,11 @@
 <?php
-namespace types;
+namespace fields;
 
-use core\BaseType;
+use core\BaseField;
 use core\Locale;
 use core\Messages;
 
-class Numeric extends BaseType {
+class Numeric extends BaseField {
 
   protected $locale;
   protected $max;
@@ -21,22 +21,10 @@ class Numeric extends BaseType {
   public function control($name, $default = '', $attrs = array()) {
     $attributes = array(
       'type' => 'number',
-      'name' => $name,
       'max' => $this->max,
       'min' => $this->min,
     );
-    /*
-    if ($this->is_nullable == 'NO') {
-      $attributes['required'] = 'required';
-    }
-    */
-    if ($this->is_updatable == 'NO') {
-      $attributes['readonly'] = 'readonly';
-    }
-    if ($default !== '') {
-      $attributes['value'] = $default;
-    }
-    $this->_input(array_merge($attributes, $attrs));
+    parent::control($name, $default, array_merge($attrs, $attributes));
   }
 
   public function format($value) {

@@ -1,7 +1,7 @@
 <?php
-namespace types;
+namespace fields;
 
-use types\Numeric;
+use fields\Numeric;
 
 class Integer extends Numeric {
 }
