@@ -1,45 +1,16 @@
 <?php
-namespace layouts;
+namespace templates\layouts;
 
-use layouts\HTML5Layout;
+use templates\layouts\Bootstrap;
 use helpers\URL;
-use models\GlobalMenu;
-use views\Menu;
-use views\Messages;
+use templates\blocks\Menu;
+use templates\blocks\Messages;
 
-class Bootstrap extends HTML5Layout {
-
-  public $viewport = 'width=device-width, initial-scale=1.0';
-
-  public function head() {
-    $this->_base(array('href' => URL::base_url()));
-    parent::head();
-  }
-
-  public function title() {
-    echo self::escape($this->view->title());
-  }
-
-  public function head_metas() {
-    parent::head_metas();
-    $this->_meta(array('name' => 'viewport', 'content' => $this->viewport));
-  }
-
-  public function head_links() {
-    parent::head_links();
-    $this->_link(array('href' => 'assets/css/bootstrap.min.css', 'rel' => 'stylesheet', 'media' => 'screen'));
-  }
-
-  public function head_scripts() {
-    parent::head_scripts();
-    $this->_script(array('src' => 'http://code.jquery.com/jquery.js'));
-    $this->_script(array('src' => 'assets/js/bootstrap.min.js'));
-  }
+class Simple extends Bootstrap {
 
   public function body() {
     $this->_navbar('div', array('class' => 'navbar navbar-inverse navbar-static-top'));
     $this->_primary_menu('div', array('class' => 'container'));
-    $this->_body_content('div', array('class' => 'container', 'id' => 'content'));
     parent::body();
   }
 
@@ -64,7 +35,7 @@ class Bootstrap extends HTML5Layout {
   }
 
   public function navbar_brand() {
-    echo 'Project name';
+    echo 'Subclass';
   }
 
   public function navbar_menu() {

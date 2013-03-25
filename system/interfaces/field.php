@@ -19,8 +19,8 @@ interface Field {
   public function default_value();
 
   // input, output and validation
-  public function control($name, $default = '');
+  public function control($name, $value = '');
   public function output($value);
   public function format($value);
-  public function validate(&$value, &$error);
+  public function validate(&$value);
 }

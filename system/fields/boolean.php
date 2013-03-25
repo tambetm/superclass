@@ -22,11 +22,11 @@ class Boolean extends Field {
     parent::control($name, 't', self::merge_attributes($attributes, $attrs));
   }
 
-  public function validate(&$value, &$error) {
-    if (!parent::validate($value, $error)) return false;
+  public function validate(&$value) {
+    if (!parent::validate($value)) return false;
 
     if (!($value == 't' || $value == 'f')) {
-      $error = sprintf(_('%s can only have value t or f.'), $this->label());
+      Messages::error_item(sprintf(_('%s can only have value t or f.'), $this->label()));
       return false;
     }
 

@@ -2,6 +2,7 @@
 namespace core\base;
 
 use helpers\String;
+use helpers\Messages;
 
 abstract class Field extends \core\HTML implements \interfaces\Field {
   protected $column;
@@ -37,9 +38,9 @@ abstract class Field extends \core\HTML implements \interfaces\Field {
     return $value;
   }
 
-  public function validate(&$value, &$error) {
+  public function validate(&$value) {
     if ((is_null($value) || $value === '') && $this->column['is_nullable'] == 'NO') {
-      $error = sprintf(_('%s cannot be empty.'), $this->label());
+      Messages::error_item(sprintf(_('%s cannot be empty.'), $this->label()));
       return false;
     } 
     

@@ -15,6 +15,6 @@ interface Model {
   public function insert($data);
   public function update($data, $where);
   public function delete($where);
-  public function validate(&$data, &$errors, $prefix = '');
+  public function validate(&$data);
   public function defaults();
 }

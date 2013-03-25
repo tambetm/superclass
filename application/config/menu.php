@@ -7,8 +7,8 @@ $menu['global'] = array(
 $config['global']['class'] = 'nav pull-right';
 
 $menu['primary'] = array(
-  'yhistud' => _('Ühistud'),
-  'tegevused' => _('Tegevused'),
-  'lepingud' => _('Lepingud'),
+  'yhistud/' => _('Ühistud'),
+  'tegevused/' => _('Tegevused'),
+  'lepingud/' => _('Lepingud'),
 );
 $config['primary']['class'] = 'nav nav-tabs';

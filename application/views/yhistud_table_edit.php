@@ -1,12 +1,12 @@
 <?php
 namespace views;
 
-use views\TableEdit;
+use templates\views\TableEdit;
 
 class YhistudTableEdit extends TableEdit {
 
   public function form() {
     parent::form();
-    $this->_a(array('href' => 'yhistud/table', 'class' => 'btn'), null, _('Back'));
+    $this->_a(array('href' => 'table', 'class' => 'btn'), _('Back'));
   }
 }

@@ -1,10 +1,10 @@
 <?php
-namespace layouts;
+namespace templates\layouts;
 
 use core\Layout;
 use helpers\Locale;
 
-abstract class HTML5Layout extends Layout {
+class HTML5Layout extends Layout {
 
   public function render() {
     $this->doctype();
@@ -27,7 +27,9 @@ abstract class HTML5Layout extends Layout {
     $this->head_scripts();
   }
 
-  abstract public function title();
+  public function title() {
+    echo self::escape($this->view->title());
+  }
 
   public function head_metas() {
     $this->_meta(array('charset' => Locale::get_charset()));

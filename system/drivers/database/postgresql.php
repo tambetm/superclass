@@ -1,5 +1,5 @@
 <?php
-namespace databases;
+namespace drivers\database;
 
 use core\Database;
 

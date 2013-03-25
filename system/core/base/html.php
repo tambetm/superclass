@@ -1,6 +1,8 @@
 <?php
 namespace core\base;
 
+use helpers\String;
+
 class HTML {
 
   static private $level = 0;
@@ -74,54 +76,45 @@ class HTML {
 
   public function __call($name, $arguments) {
     // all internal methods must start with _
-    if (strpos($name, '_') !== 0) {
+    if (!String::starts_with($name, '_')) {
       throw new \BadMethodCallException("Invalid method '$name'");
     }
 
     // call the same method without leading underscore
     $method = substr($name, 1);
 
-    // if third argument is true, then output tag only if it has contents
-    if (isset($arguments[2])) {
-      if ($arguments[2] === true) {
-        ob_start();
-        self::$level++;
-        call_user_func(array($this, $method));
-        self::$level--;
-        $content = ob_get_clean();
-        if (!$content) return;
-      } else {
-        // otherwise third argument is contents of the tag, which is automatically escaped
-        $content = self::escape($arguments[2]);
-      }
-    }
-
-    // first non-array argument is tag name.
-    if (isset($arguments[0]) && !is_null($arguments[0]) && !is_array($arguments[0])) {
-      $tag = $arguments[0];
-    } else if (isset($arguments[1]) && !is_null($arguments[1]) && !is_array($arguments[1])) {
-      $tag = $arguments[1];
+    // if first argument is not an array, then it's tag name.
+    if (isset($arguments[0]) && !is_array($arguments[0])) {
+      // remove tag name from arguments array and renumber array
+      $tag = array_shift($arguments);
     } else {
       // if missing, use the last part of method name.
       $tags = explode('_', $name);
       $tag = end($tags);
     }
 
-    // first array argument is list of attributes. NB! null is not an array!
+    // concatenate attributes into string.
+    $attributes = '';
     if (isset($arguments[0]) && is_array($arguments[0])) {
-      $attributes = $arguments[0];
-    } else if (isset($arguments[1]) && is_array($arguments[1])) {
-      $attributes = $arguments[1];
+      foreach ($arguments[0] as $name => $value) {
+        // escape attribute values for convenience
+        $attributes .= ' '.$name.'="'.self::escape($value).'"';
+      }
     }
 
-    // concatenate attributes into string.
-    $attrs = '';
-    if (isset($attributes)) {
-      foreach ($attributes as $name => $value) {
-        if (!is_null($value)) {
-          // escape attribute values for convenience
-          $attrs .= ' '.$name.'="'.self::escape($value).'"';
-        }
+    if (isset($arguments[1])) {
+      if (is_string($arguments[1])) {
+        // if third argument is string, then it's contents of the tag
+        // contents are automatically escaped
+        $content = self::escape($arguments[1]);
+      } else {
+        // if not string, then output tag only if it has contents
+        ob_start();
+        self::$level++;
+        call_user_func(array($this, $method));
+        self::$level--;
+        $content = ob_get_clean();
+        if (!$content) return;
       }
     }
 
@@ -129,9 +122,9 @@ class HTML {
 
     // output tag and it's contents
     if (isset($content)) {
-      echo "<$tag$attrs>$content</$tag>";
+      echo "<$tag$attributes>$content</$tag>";
     } else if (method_exists($this, $method)){
-      echo "<$tag$attrs>";
+      echo "<$tag$attributes>";
       self::$level++;
       call_user_func(array($this, $method));
       self::$level--;
@@ -140,9 +133,9 @@ class HTML {
       }
       echo "</$tag>";
     } else if (isset(self::$self_closing_tags[$tag])){
-      echo "<$tag$attrs/>";
+      echo "<$tag$attributes/>";
     } else {
-      echo "<$tag$attrs></$tag>";
+      echo "<$tag$attributes></$tag>";
     }
   }
 

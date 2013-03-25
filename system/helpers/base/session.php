@@ -2,9 +2,6 @@
 namespace helpers\base;
 
 class Session {
-  static public function start() {
-    session_start();
-  }
 
   static public function get($name) {
     return isset($_SESSION[$name]) ? $_SESSION[$name] : null;

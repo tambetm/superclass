@@ -2,6 +2,7 @@
 namespace fields;
 
 use core\Field;
+use helpers\Messages;
 
 class String extends Field {
 
@@ -13,11 +14,11 @@ class String extends Field {
     parent::control($name, $default, self::merge_attributes($attributes, $attrs));
   }
 
-  public function validate(&$value, &$error) {
-    if (!parent::validate($value, $error)) return false;
+  public function validate(&$value) {
+    if (!parent::validate($value)) return false;
 
     if (!is_null($this->column['character_maximum_length']) && mb_strlen($value) > $this->column['character_maximum_length']) {
-      $error = sprintf(_('%s cannot be longer than %d characters.'), $this->label(), $this->column['character_maximum_length']);
+      Messages::error_item(sprintf(_('%s cannot be longer than %d characters.'), $this->label(), $this->column['character_maximum_length']));
       return false;
     }
 

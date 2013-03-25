@@ -1,8 +1,8 @@
 <?php
-namespace views;
+namespace templates\blocks;
 
 use core\HTML;
-use helpers\Messages as helpers_Messages;
+use helpers\Messages as _Messages;
 
 class Messages extends HTML {
   
@@ -12,7 +12,7 @@ class Messages extends HTML {
   protected $item;
   
   public function __construct() {
-    $this->messages = helpers_Messages::messages();
+    $this->messages = _Messages::messages();
   }
 
   public function render() {
@@ -25,7 +25,9 @@ class Messages extends HTML {
   public function messages() {
     foreach ($this->messages as $this->message) {
       if ($this->message['type'] == 'log') {
-        $this->_text('pre');
+        foreach ($this->message['items'] as $this->item) {
+          $this->_pre();
+        }
       } else {
         $this->_message('div', array('class' => 'alert alert-block alert-'.$this->message['type'].' fade in'));
       }
@@ -58,6 +60,10 @@ class Messages extends HTML {
   }
 
   public function li() {
+    echo self::escape($this->item);
+  }
+
+  public function pre() {
     echo self::escape($this->item);
   }
 

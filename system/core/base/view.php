@@ -1,9 +1,9 @@
 <?php
 namespace core\base;
 
-use core\HTML;
+use core\HTML as _HTML;
 
-abstract class View extends HTML implements \interfaces\View {
+abstract class View extends _HTML implements \interfaces\View {
 
   protected $model;
 
@@ -11,7 +11,7 @@ abstract class View extends HTML implements \interfaces\View {
     $this->model = $model;
   }
 
-  public function post() {
-    $this->get();
+  public function post($params) {
+    $this->get($_GET);
   }
 }

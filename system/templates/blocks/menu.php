@@ -1,8 +1,9 @@
 <?php
-namespace views;
+namespace templates\blocks;
 
 use core\HTML;
 use helpers\URL;
+use helpers\String;
 
 class Menu extends HTML {
 
@@ -32,9 +33,9 @@ class Menu extends HTML {
   }
 
   public function ul() {
-    $current_url = URL::current_url();
+    $path = URL::relative_path();
     foreach ($this->menu as $this->url => $this->label) {
-      if (strpos($current_url, $this->url) === 0) {
+      if (String::starts_with($path, $this->url)) {
         $this->_ul_li(array('class' => 'active'));
       } else {
         $this->_ul_li();
@@ -43,7 +44,7 @@ class Menu extends HTML {
   }
 
   public function ul_li() {
-    $this->_ul_li_a(array('href' => $this->url));
+    $this->_ul_li_a(array('href' => URL::base_path().$this->url));
   }
 
   public function ul_li_a() {

@@ -22,6 +22,13 @@ class Model implements \interfaces\Model {
   public function __construct($table) {
     $this->table = $table;
     $this->db = Database::database();
+
+    $columns = $this->db->columns($this->table);
+    if (!is_array($columns) || count($columns) == 0) throw new \UnexpectedValueException("Invalid metadata for columns for table '$this->table'");
+
+    foreach ($columns as $name => $column) {
+      $this->fields[$name] = $this->field($column);
+    }
   }
 
   public function db() {
@@ -42,14 +49,6 @@ class Model implements \interfaces\Model {
   }
 
   public function fields() {
-    if (!$this->fields) {
-      $columns = $this->db->columns($this->table);
-      if (!is_array($columns)) throw new \UnexpectedValueException("Invalid metadata for columns for table '$this->table'");
-
-      foreach ($columns as $name => $column) {
-        $this->fields[$name] = $this->field($column);
-      }
-    }
     return $this->fields;
   }
 
@@ -196,14 +195,13 @@ class Model implements \interfaces\Model {
     return $this->db->execute($sql);
   }
 
-  public function validate(&$data, &$errors, $prefix = '') {
+  public function validate(&$data) {
     $data = array_intersect_key($data, $this->fields);
     $success = true;
     foreach($data as $name => &$value) {
       $field = $this->fields[$name];
-      if (!$field->validate($value, $error, $prefix)) {
+      if (!$field->validate($value)) {
         $success = false;
-        $errors[] = $prefix.$error;
       }
     }
     return $success;

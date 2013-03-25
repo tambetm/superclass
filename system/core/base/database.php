@@ -41,7 +41,7 @@ abstract class Database implements \interfaces\Database {
   abstract protected function affected_rows($result);
 
   protected function extract_schema($table) {
-    if (strpos($table, '.') !== false) {
+    if (String::contains($table, '.')) {
       return explode('.', $table);
     } else {
       return array('public', $table);
@@ -52,6 +52,7 @@ abstract class Database implements \interfaces\Database {
   public function columns($table) {
     list($schema, $table) = $this->extract_schema($table);
     $result = $this->query_params('select * from information_schema.columns where table_schema = $1 and table_name = $2', array($schema, $table));
+    if ($result === false) return false;
     return $this->fetch_hashed_rows($result, 'column_name');
   }
 
@@ -59,6 +60,7 @@ abstract class Database implements \interfaces\Database {
   public function primary_key($table) {
     list($schema, $table) = $this->extract_schema($table);
     $result = $this->query_params('select kcu.* from information_schema.key_column_usage kcu join information_schema.table_constraints tc using (constraint_catalog, constraint_schema, constraint_name) where kcu.table_schema = $1 and kcu.table_name = $2 and tc.constraint_type = $3', array($schema, $table, 'PRIMARY KEY'));
+    if ($result === false) return false;
     return $this->fetch_hashed_rows($result, 'column_name');
   }
 
@@ -74,19 +76,19 @@ abstract class Database implements \interfaces\Database {
   // for inserts, updates and deletes, returns affected rows
   public function execute($sql) {
     $result = $this->query($sql);
-    // no need to check $result, because database errors trigger fatal error
+    if ($result === false) return false;
     return $this->affected_rows($result);
   }
 
   public function select_all($sql) {
     $result = $this->query($sql);
-    // no need to check $result, because database errors trigger fatal error
+    if ($result === false) return false;
     return $this->fetch_all($result);
   }
 
   public function select_row($sql) {
     $result = $this->query($sql);
-    // no need to check $result, because database errors trigger fatal error
+    if ($result === false) return false;
     return $this->fetch_row($result);
   }
 

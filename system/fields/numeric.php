@@ -33,15 +33,16 @@ class Numeric extends Field {
     }
   }
 
-  public function validate(&$value, &$error) {
-    if (!parent::validate($value, $error)) return false;
+  public function validate(&$value) {
+    if (!parent::validate($value)) return false;
 
+    // empty field is valid
     if (is_null($value) || $value === '') return true;
 
     // support both decimal point and monetary decimal point as separator
     $pattern = '/^[+-]?\d+['.$this->locale['decimal_point'].$this->locale['mon_decimal_point'].']?\d*$/';
     if (!preg_match($pattern, $value)) {
-      $error = sprintf(_('%s must be a number.'), $this->label());
+      Messages::error_item(sprintf(_('%s must be a number.'), $this->label()));
       return false;
     }
 

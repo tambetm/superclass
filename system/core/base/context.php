@@ -68,7 +68,7 @@ class Context {
     if (class_exists($view_class)) {
       return $view_class;
     }
-    return VIEW_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($this->action);
+    return TEMPLATE_VIEW_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($this->action);
   }
 
   public function get_model_class() {
@@ -88,7 +88,11 @@ class Context {
     return DEFAULT_LAYOUT_CLASS;
   }
 
-  public function get_method() {
+  public function get_action_method() {
+    return strtolower($_SERVER['REQUEST_METHOD']);
+  }
+
+  public function get_render_method() {
     return $this->method;
   }
 }

@@ -1,11 +1,13 @@
 <?php
-namespace views;
+namespace templates\views;
 
 use core\View;
 
 class Table extends View {
 
   protected $config;
+  protected $db;
+  protected $table;
   protected $fields;
   protected $data;
 
@@ -19,11 +21,14 @@ class Table extends View {
     parent::__construct($model);
     include('config/table.php');
     $this->config = $config;
+
+    $this->db = $model->db();
+    $this->table = $model->table();
     $this->fields = $model->fields();
   }
 
-  public function get() {
-    $this->data = $this->model->select($_GET);
+  public function get($params) {
+    $this->data = $this->model->select($params);
   }
 
   public function title() {

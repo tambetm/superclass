@@ -26,13 +26,14 @@ function __autoload($class_name) {
 }
 
 // set up error handling.
-$errorhandler = new ErrorHandler();
-set_error_handler(array($errorhandler, 'handle_error'));
-set_exception_handler(array($errorhandler, 'handle_exception'));
-register_shutdown_function(array($errorhandler, 'handle_fatal_error'));
+$error_handler_class = ERROR_HANDLER_CLASS;
+$error_handler = new $error_handler_class();
+set_error_handler(array($error_handler, 'handle_error'));
+set_exception_handler(array($error_handler, 'handle_exception'));
+register_shutdown_function(array($error_handler, 'handle_fatal_error'));
 
 // extract class name and method name from URL path
-$context = new Context(URL::current_url());
+$context = new Context(URL::relative_path());
 $class = $context->get_controller_class();
 $method = $context->get_controller_method();
 

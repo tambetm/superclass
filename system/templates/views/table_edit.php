@@ -1,16 +1,16 @@
 <?php
-namespace views;
+namespace templates\views;
 
-use views\Table;
+use templates\views\Table;
 use helpers\URL;
 use helpers\Messages;
 use helpers\Response;
+use helpers\Arrays;
 
 class TableEdit extends Table {
 
-  protected $db;
-  protected $table;
   protected $primary_key;
+
   protected $where;
   protected $defaults;
   protected $selectors;
@@ -19,48 +19,51 @@ class TableEdit extends Table {
   public function __construct($model) {
     parent::__construct($model);
     $this->primary_key = $model->primary_key();
-    $this->db = $model->db();
-    $this->table = $model->table();
   }
 
-  public function post() {
-    if (!isset($_POST[$this->table]['selector']) || !is_array($_POST[$this->table]['selector'])) {
+  public function post($params) {
+    $table = Arrays::get($params, $this->table);
+    if (!is_array($table)) {
+      throw new \InvalidArgumentException("No data posted to table '$this->table'");
+    }
+
+    $this->selectors = Arrays::get($table, 'selector');
+    $this->operations = Arrays::get($table, 'operation');
+    $this->data = Arrays::get($table, 'data');
+    $this->where = Arrays::get($table, 'where');;
+
+    if (!is_array($this->selectors)) {
       Messages::alert(_('You did not choose any rows.'));
       Response::redirect(URL::current_url());
     }
 
-    if (!isset($_POST[$this->table]) || !is_array($_POST[$this->table])) {
-      throw new \InvalidArgumentException("No data posted to table '$this->table'");
-    }
-
-    $this->selectors = $_POST[$this->table]['selector'];
-    $this->operations = $_POST[$this->table]['operation'];
-    $this->data = $_POST[$this->table]['data'];
-    $this->where = $_POST[$this->table]['where'];
     $updates = 0;
     $inserts = 0;
     $deletes = 0;
-    $errors = array();
     $success = true;
     $this->db->begin();
     foreach ($this->selectors as $nr => $selected) {
       $row = $this->data[$nr];
       $operation = $this->operations[$nr];
-      $prefix = sprintf(_('Row %d: '), $nr + 1);
+      Messages::item_prefix(sprintf(_('Row %d: '), $nr + 1));
       switch($operation) {
 
         case 'insert':
-          if ($this->model->validate($row, $errors, $prefix)) {
-            $inserts += $this->model->insert($row);
+          if ($this->model->validate($row)) {
+            $result = $this->model->insert($row);
+            $success = $success && $result;
+            $inserts += $result;
           } else {
             $success = false;
           }
           break;
 
         case 'update':
-          if ($this->model->validate($row, $errors, $prefix)) {
+          if ($this->model->validate($row)) {
             $where = $this->where[$nr];
-            $updates += $this->model->update($row, $where);
+            $result = $this->model->update($row, $where);
+            $success = $success && $result;
+            $updates += $result;
           } else {
             $success = false;
           }
@@ -68,25 +71,27 @@ class TableEdit extends Table {
 
         case 'delete':
           $where = $this->where[$nr];
-          $deletes += $this->model->delete($where);
+          $result = $this->model->delete($where);
+          $success = $success && $result;
+          $deletes += $result;
           break;
 
         default:
           throw new \InvalidArgumentException("Unknown operation '$operation'");
       }
     }
+    Messages::item_prefix('');
 
     if ($success) {
       $this->db->commit();
-      $stats = array();
-      if ($inserts > 0) $stats[] = sprintf(ngettext('%d record inserted.', '%d records inserted.', $inserts), $inserts);
-      if ($updates > 0) $stats[] = sprintf(ngettext('%d record updated.', '%d records updated.', $updates), $updates);
-      if ($deletes > 0) $stats[] = sprintf(ngettext('%d record deleted.', '%d records deleted.', $deletes), $deletes);
-      Messages::success(_('Changes saved successfully.'), $stats);
+      if ($inserts > 0) Messages::success_item(sprintf(ngettext('%d record inserted.', '%d records inserted.', $inserts), $inserts));
+      if ($updates > 0) Messages::success_item(sprintf(ngettext('%d record updated.', '%d records updated.', $updates), $updates));
+      if ($deletes > 0) Messages::success_item(sprintf(ngettext('%d record deleted.', '%d records deleted.', $deletes), $deletes));
+      Messages::success(_('Changes saved successfully.'));
       Response::redirect(URL::current_url());
     } else {
       $this->db->rollback();
-      Messages::error(_('Error saving changes.'), $errors);
+      Messages::error(_('Error saving changes.'));
     }
   }
 
@@ -95,7 +100,7 @@ class TableEdit extends Table {
   }
 
   public function render() {
-    $this->_form(array('action' => URL::current_url(), 'method' => 'post'));
+    $this->_form(array('action' => URL::current_path(), 'method' => 'post'));
     $this->_script(array('type' => 'text/javascript'));
   }
 
@@ -255,15 +260,14 @@ class TableEdit extends Table {
     echo self::escape(_('Add new'));
   }
 
-  protected function script() {
-    ?>
+  protected function script() {?>
 $('#selectall').click(function() {
   var checked = $(this).prop('checked');
   $('#<?=$this->table?> .selector').prop('checked', checked);
 });
 
 $('#addnew').click(function() {
-  $.get('<?=URL::current_url()?>;add_new', function(data) {
+  $.get('<?=URL::current_path()?>;add_new', function(data) {
     var count = $('#<?=$this->table?> tbody tr').size();
     data = data.replace('__prototype__', count, 'g');
     $('#<?=$this->table?> tbody').append(data);
@@ -296,8 +300,6 @@ $('#<?=$this->table?>').on('change', '.control', function() {
   var $row = $(this).parent().parent();
   var $selector = $row.children().first().children().first();
   $selector.prop('checked', true);
-});
-
-    <?php
+});<?php
   }
 }

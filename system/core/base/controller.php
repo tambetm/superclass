@@ -2,6 +2,7 @@
 namespace core\base;
 
 use helpers\Session;
+use helpers\Request;
 
 class Controller implements \interfaces\Controller {
 
@@ -9,7 +10,7 @@ class Controller implements \interfaces\Controller {
 
   function __construct($context) {
     $this->context = $context;
-    Session::start();
+    session_start();
   }
 
   function __call($name, $arguments) {
@@ -23,25 +24,25 @@ class Controller implements \interfaces\Controller {
     $view = new $view_class($model);
 
     // call appropriate method depending on request method
-    switch ($_SERVER['REQUEST_METHOD']) {
+    $request_method = Request::method();
+    switch ($request_method) {
       case 'GET':
-        $view->get();
+        $view->get($_GET);
         break;
 
       case 'POST':
-        $view->post();
+        $view->post($_POST);
         break;
 
       default:
-        trigger_error("Request method ".$_SERVER['REQUEST_METHOD']." unsupported", E_USER_ERROR);
-        exit;
+        throw new \BadMethodCallException("Request method '$request_method' unsupported");
     }
 
     // instantiate layout with view
     $layout_class = $this->context->get_layout_class();
     $layout = new $layout_class($view);
 
-    $method = $this->context->get_method();
+    $method = $this->context->get_render_method();
     if (method_exists($layout, $method)) {
       // render layout
       call_user_func_array(array($layout, $method), $arguments);  
@@ -49,7 +50,7 @@ class Controller implements \interfaces\Controller {
       // render only view
       call_user_func_array(array($view, $method), $arguments);  
     } else {
-      header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
+      Response::code(404);
       throw new \BadMethodCallException("Method '$method' doesn't exist in view or layout");
     }
   }
