@@ -1,7 +1,7 @@
 <?php
-namespace fields;
+namespace types;
 
-use fields\String;
+use types\String;
 
 class Text extends String {
 

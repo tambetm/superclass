@@ -170,6 +170,18 @@ class TableEdit extends Table {
       'value' => isset($this->operations[$this->nr]) ? $this->operations[$this->nr] : 'update',
     );
     $this->_input($attributes);
+
+    if ($this->operations[$this->nr] != 'insert' && is_array($this->config['primary_key'])) {
+      foreach($this->config['primary_key'] as $field => $dummy) {
+        $this->_input(array(
+          'type' => 'hidden', 
+          'name' => "$this->table[where][$this->nr][$field]", 
+          'value' => isset($this->where[$this->nr][$field]) ? 
+            $this->where[$this->nr][$field] : 
+            $this->row[$field],
+        ));
+      }
+    }
   }
 
   protected function table_tbody_tr_delete_td() {
@@ -182,13 +194,6 @@ class TableEdit extends Table {
   }
 
   protected function table_tbody_tr_td() {
-    if (isset($this->config['primary_key'][$this->field])) {
-      $this->_input(array(
-        'type' => 'hidden', 
-        'name' => "$this->table[where][$this->nr][$this->field]", 
-        'value' => $this->row[$this->field],
-      ));
-    }
     $name = "$this->table[data][$this->nr][$this->field]";
     $value = $this->row[$this->field];
     $this->field_meta->control($name, $value, array('class' => 'control'));

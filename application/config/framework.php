@@ -17,7 +17,9 @@ define('CONTROLLER_NAMESPACE', 'controllers');
 define('MODEL_NAMESPACE', 'models');
 define('VIEW_NAMESPACE', 'views');
 define('FIELD_NAMESPACE', 'fields');
-define('DATABASE_NAMESPACE', 'drivers\database');
+define('DOMAIN_NAMESPACE', 'domains');
+define('TYPE_NAMESPACE', 'types');
+define('DATABASE_DRIVER_NAMESPACE', 'drivers\database');
 define('TEMPLATE_VIEW_NAMESPACE', 'templates\views');
 
 // separators

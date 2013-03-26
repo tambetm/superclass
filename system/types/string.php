@@ -1,5 +1,5 @@
 <?php
-namespace fields;
+namespace types;
 
 use core\Field;
 use helpers\Messages;

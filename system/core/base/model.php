@@ -4,6 +4,7 @@ namespace core\base;
 use core\Database;
 use helpers\String;
 use helpers\Config;
+use helpers\Arrays;
 
 class Model implements \interfaces\Model {
 
@@ -47,7 +48,35 @@ class Model implements \interfaces\Model {
   }
 
   protected function field($column) {
-    $class = FIELD_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($column['data_type']);
+    Config::load($column, DOMAIN_NAMESPACE.DIRECTORY_SEPARATOR.$column['domain_name'].'_meta.php');
+    Config::load($column, FIELD_NAMESPACE.DIRECTORY_SEPARATOR.$column['column_name'].'_meta.php');
+    $column = array_merge($column, $this->config['columns'][$column['column_name']]);
+
+    switch(true) {
+      default:
+        if (isset($column['class'])) {
+          $class = $column['class'];
+          if (class_exists($class)) {
+            break;
+          } else {
+            throw new \InvalidArgumentException("Column class '$class' does not exist");
+          }
+        }
+
+        $class = FIELD_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($column['column_name']);
+        if (class_exists($class)) break;
+
+        if ($column['domain_name']) {
+          $class = DOMAIN_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($column['domain_name']);
+          if (class_exists($class)) break;
+        }
+
+        $class = TYPE_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($column['data_type']);
+        if (class_exists($class)) break;
+
+        throw new \DomainException("Could not find class for field '$column[column_name]'");
+    }
+
     return new $class($column);
   }
 
@@ -110,8 +139,12 @@ class Model implements \interfaces\Model {
       $values = implode(', ', $values);
       return "$field in ($values)";
     } else {
-      $value = $this->db->escape($value, $type);
-      return "$field = $value";
+      if (is_null($value)) {
+        return "$field IS NULL";
+      } else {
+        $value = $this->db->escape($value, $type);
+        return "$field = $value";
+      }
     }
   }
 

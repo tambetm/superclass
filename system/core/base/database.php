@@ -13,12 +13,21 @@ abstract class Database implements \interfaces\Database {
       return self::$databases[$name];
     } else {
       Config::load($config, "config/databases/$name.php");
-      if (!is_array($config)) throw new \InvalidArgumentException("Configuration for database '$name' is invalid");
-      if (!isset($config['driver'])) throw new \InvalidArgumentException("Missing driver for database '$name'");
+      if (!is_array($config)) {
+        throw new \InvalidArgumentException("Configuration for database '$name' is invalid");
+      }
+
+      if (!isset($config['driver'])) {
+        throw new \InvalidArgumentException("Missing driver for database '$name'");
+      }
       $driver = $config['driver'];
       unset($config['driver']);
-      $driver_class = DATABASE_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($driver);
-      if (!class_exists($driver_class)) throw new \InvalidArgumentException("Driver class does not exist for driver '$driver'");
+
+      $driver_class = DATABASE_DRIVER_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($driver);
+      if (!class_exists($driver_class)) {
+        throw new \InvalidArgumentException("Driver class does not exist for driver '$driver'");
+      }
+
       return self::$databases[$name] = new $driver_class($config);
     }
   }

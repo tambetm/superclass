@@ -1,5 +1,5 @@
 <?php
-namespace fields;
+namespace types;
 
 use core\Field;
 use helpers\Locale;
@@ -47,12 +47,12 @@ class Numeric extends Field {
     }
 
     if ($value > $this->max) {
-      $error = sprintf(_('%s cannot be bigger than %s.'), $this->label(), $this->max);
+      Messages::error_item(sprintf(_('%s cannot be bigger than %s.'), $this->label(), $this->max));
       return false;
     }
 
     if ($value < $this->min) {
-      $error = sprintf(_('%s cannot be smaller than %s.'), $this->label(), $this->min);
+      Messages::error_item(sprintf(_('%s cannot be smaller than %s.'), $this->label(), $this->min));
       return false;
     }
 

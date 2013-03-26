@@ -9,6 +9,7 @@ interface Field {
   const KIND_DATE = 'date';
   const KIND_TIME = 'time';
   const KIND_DATETIME = 'datetime';
+  const KIND_ENUM = 'enum';
   
   public function __construct($column);
 
