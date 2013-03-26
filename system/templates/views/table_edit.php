@@ -6,10 +6,9 @@ use helpers\URL;
 use helpers\Messages;
 use helpers\Response;
 use helpers\Arrays;
+use helpers\Config;
 
 class TableEdit extends Table {
-
-  protected $primary_key;
 
   protected $where;
   protected $defaults;
@@ -18,7 +17,10 @@ class TableEdit extends Table {
 
   public function __construct($model) {
     parent::__construct($model);
-    $this->primary_key = $model->primary_key();
+    $this->config['primary_key'] = $model->primary_key();
+
+    Config::load($this->config, 'config/views/table_edit.php');
+    Config::load($this->config, VIEW_NAMESPACE.DIRECTORY_SEPARATOR.$model->table().'_table_edit_meta.php');
   }
 
   public function post($params) {
@@ -106,11 +108,6 @@ class TableEdit extends Table {
 
   protected function form() {
     parent::render();
-    $this->_save_button(array('type' => 'submit', 'class' => 'btn btn-primary'));
-  }
-
-  protected function save_button() {
-    echo self::escape(_('Save changes'));
   }
 
   protected function _table_colgroup() {
@@ -179,13 +176,13 @@ class TableEdit extends Table {
     $attributes = array(
       'id' => $this->table.'__delete__'.$this->nr,
       'type' => 'button',
-      'class' => 'btn btn-danger delete',
+      'class' => 'btn btn-small btn-danger delete',
     );
     $this->_delete_button($attributes);
   }
 
   protected function table_tbody_tr_td() {
-    if (isset($this->primary_key[$this->field])) {
+    if (isset($this->config['primary_key'][$this->field])) {
       $this->_input(array(
         'type' => 'hidden', 
         'name' => "$this->table[where][$this->nr][$this->field]", 
@@ -236,7 +233,7 @@ class TableEdit extends Table {
   protected function table_prototype_tr_delete_td() {
     $attributes = array(
       'type' => 'button',
-      'class' => 'btn btn-danger delete',
+      'class' => 'btn btn-small btn-danger delete',
     );
     $this->_delete_button($attributes);
   }
@@ -253,7 +250,7 @@ class TableEdit extends Table {
   }
 
   protected function table_addnew_tr_td() {
-    $this->_table_addnew_button(array('type' => 'button', 'id' => 'addnew', 'class' => 'btn'));
+    $this->_table_addnew_button(array('type' => 'button', 'id' => 'addnew', 'class' => 'btn btn-small'));
   }
 
   protected function table_addnew_button() {

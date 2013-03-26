@@ -1,4 +1,7 @@
 <?php
 
-$config['application'] = 'application/locale';
-$config['system'] = 'system/locale';
+$config['domains'] = array(
+  'application' => 'application/locale',
+  'system' => 'system/locale',
+);
+$config['default_domain'] = 'application';

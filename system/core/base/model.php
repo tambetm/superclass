@@ -3,6 +3,7 @@ namespace core\base;
 
 use core\Database;
 use helpers\String;
+use helpers\Config;
 
 class Model implements \interfaces\Model {
 
@@ -23,10 +24,12 @@ class Model implements \interfaces\Model {
     $this->table = $table;
     $this->db = Database::database();
 
-    $columns = $this->db->columns($this->table);
-    if (!is_array($columns) || count($columns) == 0) throw new \UnexpectedValueException("Invalid metadata for columns for table '$this->table'");
+    $this->config['columns'] = $this->db->columns($this->table);
+    if (!is_array($this->config['columns']) || count($this->config['columns']) == 0) throw new \UnexpectedValueException("Invalid metadata for columns for table '$this->table'");
 
-    foreach ($columns as $name => $column) {
+    Config::load($this->config, MODEL_NAMESPACE.DIRECTORY_SEPARATOR.$table.'_meta.php');
+
+    foreach ($this->config['columns'] as $name => $column) {
       $this->fields[$name] = $this->field($column);
     }
   }
@@ -40,7 +43,7 @@ class Model implements \interfaces\Model {
   }
 
   public function caption() {
-    return String::human($this->table);
+    return isset($this->config['caption']) ? $this->config['caption'] : String::human($this->table);
   }
 
   protected function field($column) {

@@ -48,7 +48,7 @@ abstract class Field extends \core\HTML implements \interfaces\Field {
   }
 
   public function label() {
-    return String::human($this->column['column_name']);
+    return isset($this->column['label']) ? $this->column['label'] : String::human($this->column['column_name']);
   }
 
   public function database_type() {

@@ -2,6 +2,8 @@
 namespace templates\views;
 
 use core\View;
+use helpers\Arrays;
+use helpers\Config;
 
 class Table extends View {
 
@@ -16,15 +18,19 @@ class Table extends View {
   protected $field_meta;
   protected $nr;
   protected $row;
+  protected $action;
 
   public function __construct($model) {
     parent::__construct($model);
-    include('config/table.php');
-    $this->config = $config;
+    Config::load($this->config, 'config/views/table.php');
+    Config::load($this->config, VIEW_NAMESPACE.DIRECTORY_SEPARATOR.$model->table().'_table_meta.php');
 
     $this->db = $model->db();
     $this->table = $model->table();
     $this->fields = $model->fields();
+    if (isset($this->config['columns']) && is_array($this->config['columns'])) {
+      $this->fields = array_intersect_key($this->fields, $this->config['columns']);
+    }
   }
 
   public function get($params) {
@@ -37,10 +43,10 @@ class Table extends View {
 
   public function render() {
     $attributes = array('id' => $this->model->table());
-    if (isset($this->config['class'])) {
-      $attributes['class'] = $this->config['class'];
+    $this->_table(self::merge_attributes($attributes, $this->config['attributes']));
+    if (isset($this->config['table_actions']) && is_array($this->config['table_actions'])) {
+      $this->_table_actions('div', array('class' => 'table-actions'));
     }
-    $this->_table($attributes);
   }
 
   protected function table() {
@@ -68,7 +74,11 @@ class Table extends View {
   }
 
   protected function table_thead_tr_th() {
-    echo $this->field_meta->label();
+    if (isset($this->config['columns'][$this->field]['label'])) {
+      echo $this->config['columns'][$this->field]['label'];
+    } else {
+      echo $this->field_meta->label();
+    }
   }
 
   protected function _table_tbody() {
@@ -96,5 +106,15 @@ class Table extends View {
 
   protected function table_tfoot() {
     // default is empty
+  }
+
+  protected function table_actions() {
+    foreach ($this->config['table_actions'] as $this->action) {
+      $this->table_actions_action();
+    }
+  }
+
+  protected function table_actions_action() {
+    call_user_func_array(array($this, '_'), $this->action);
   }
 }

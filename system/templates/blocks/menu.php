@@ -4,11 +4,11 @@ namespace templates\blocks;
 use core\HTML;
 use helpers\URL;
 use helpers\String;
+use helpers\Config;
 
 class Menu extends HTML {
 
   protected $name;
-  protected $menu;
   protected $config;
 
   /* internal loop variables */
@@ -17,24 +17,19 @@ class Menu extends HTML {
 
   public function __construct($name) {
     $this->name = $name;
-    include('config/menu.php');
-    $this->menu = $menu[$name];
-    $this->config = $config[$name];
+    Config::load($this->config, "config/menus/$name.php");
   }
 
   public function render() {
-    if (is_array($this->menu)) {
+    if (is_array($this->config['menu'])) {
       $attributes = array('id' => $this->name);
-      if (isset($this->config['class'])) {
-        $attributes['class'] = $this->config['class'];
-      }
-      $this->_ul($attributes);
+      $this->_ul(self::merge_attributes($attributes, $this->config['attributes']));
     }
   }
 
   public function ul() {
     $path = URL::relative_path();
-    foreach ($this->menu as $this->url => $this->label) {
+    foreach ($this->config['menu'] as $this->url => $this->label) {
       if (String::starts_with($path, $this->url)) {
         $this->_ul_li(array('class' => 'active'));
       } else {

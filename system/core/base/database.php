@@ -2,6 +2,7 @@
 namespace core\base;
 
 use helpers\String;
+use helpers\Config;
 
 abstract class Database implements \interfaces\Database {
 
@@ -11,9 +12,7 @@ abstract class Database implements \interfaces\Database {
     if (isset(self::$databases[$name])) {
       return self::$databases[$name];
     } else {
-      include('config/database.php');
-      if (!isset($config[$name])) throw new \InvalidArgumentException("Missing configuration for database '$name'");
-      $config = $config[$name];
+      Config::load($config, "config/databases/$name.php");
       if (!is_array($config)) throw new \InvalidArgumentException("Configuration for database '$name' is invalid");
       if (!isset($config['driver'])) throw new \InvalidArgumentException("Missing driver for database '$name'");
       $driver = $config['driver'];

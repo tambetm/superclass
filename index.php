@@ -17,12 +17,10 @@ function __autoload($class_name) {
   // file name is class name in lowercase, underscores replaced with directory separators
   $filename = String::underscore(str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $class_name)) . '.php';
   // check for class file and include it
-	$paths = explode(PATH_SEPARATOR, get_include_path());
-	foreach ($paths as $path) {
-		if (is_readable($path.DIRECTORY_SEPARATOR.$filename)) {
-      include_once $filename;
-    }
-	}
+  $filepath = stream_resolve_include_path($filename);
+  if ($filepath !== false) {
+    include_once $filepath;
+  }
 }
 
 // set up error handling.

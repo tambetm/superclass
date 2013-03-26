@@ -6,7 +6,7 @@ use helpers\Locale;
 class Translator {
 
   static public function init() {
-    include('config/gettext.inc');
+    Config::load($config, 'config/gettext.php');
     if (!is_array($config)) throw new \UnexpectedValueException("Invalid configuration for gettext");
 
     $lang = Locale::get_current();
@@ -15,13 +15,13 @@ class Translator {
     putenv("LANG=$lang");
     setlocale(LC_MESSAGES, $lang);
 
-    foreach ($config as $domain => $directory) {
+    foreach ($config['domains'] as $domain => $directory) {
       bindtextdomain($domain, $directory);
       bind_textdomain_codeset($domain, $charset);
     }
 
-    // default domain is 'application'
-    textdomain('application');
+    // default domain is usually 'application'
+    textdomain($config['default_domain']);
   }
 
   static public function _() {

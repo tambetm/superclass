@@ -3,6 +3,7 @@ namespace core\base;
 
 use templates\layouts\Error;
 use helpers\Messages;
+use helpers\Config;
 
 class ErrorHandler {
 
@@ -10,8 +11,7 @@ class ErrorHandler {
   protected $cwd;
 
   public function __construct() {
-    include('config/error_handler.php');
-    $this->config = $config;
+    Config::load($this->config, 'config/error_handler.php');
     $this->cwd = getcwd();
   }
  
