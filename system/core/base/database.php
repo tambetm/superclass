@@ -23,11 +23,7 @@ abstract class Database implements \interfaces\Database {
       $driver = $config['driver'];
       unset($config['driver']);
 
-      $driver_class = DATABASE_DRIVER_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($driver);
-      if (!class_exists($driver_class)) {
-        throw new \InvalidArgumentException("Driver class does not exist for driver '$driver'");
-      }
-
+      $driver_class = Resolver::get_database_class($driver);
       return self::$databases[$name] = new $driver_class($config);
     }
   }

@@ -28,7 +28,7 @@ class Menu extends HTML {
   }
 
   public function ul() {
-    $path = URL::relative_path();
+    $path = URL::site_path();
     foreach ($this->config['menu'] as $this->url => $this->label) {
       if (String::starts_with($path, $this->url)) {
         $this->_ul_li(array('class' => 'active'));

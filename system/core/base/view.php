@@ -11,7 +11,9 @@ abstract class View extends _HTML implements \interfaces\View {
     $this->model = $model;
   }
 
+  public function get($params) {
+  }
+
   public function post($params) {
-    $this->get($_GET);
   }
 }

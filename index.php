@@ -1,15 +1,15 @@
 <?php
-
 // include config
 require_once('config/php.php');
 require_once('config/framework.php');
-// HACK
+
+// HACK: autoloader itself uses String::underscore()
 require_once('helpers/base/string.php');
 require_once('helpers/string.php');
 
 use helpers\String;
 use core\ErrorHandler;
-use core\Context;
+use core\Resolver;
 use helpers\Url;
 
 // set up class autoloading
@@ -19,6 +19,7 @@ function __autoload($class_name) {
   // check for class file and include it
   $filepath = stream_resolve_include_path($filename);
   if ($filepath !== false) {
+    // include with absolute path, this hopefully saves us second scan of include_path
     include_once $filepath;
   }
 }
@@ -31,10 +32,9 @@ set_exception_handler(array($error_handler, 'handle_exception'));
 register_shutdown_function(array($error_handler, 'handle_fatal_error'));
 
 // extract class name and method name from URL path
-$context = new Context(URL::relative_path());
-$class = $context->get_controller_class();
-$method = $context->get_controller_method();
+$class = Resolver::get_controller_class(URL::get_resource());
+$method = Resolver::get_controller_method(URL::get_action());
 
 // instantiate and call controller object
-$obj = new $class($context);
+$obj = new $class();
 $obj->$method();

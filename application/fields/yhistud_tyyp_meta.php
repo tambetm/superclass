@@ -1,6 +1,6 @@
 <?php
 
-$config['class'] = 'enum';
+$config['data_type'] = 'enum';
 $config['options'] = array(
   'T' => _('ühistu'),
   'S' => _('ühisus'),

@@ -2,6 +2,7 @@
 namespace templates\views;
 
 use core\View;
+use helpers\URL;
 use helpers\Arrays;
 use helpers\Config;
 
@@ -42,11 +43,9 @@ class Table extends View {
   }
 
   public function render() {
-    $attributes = array('id' => $this->model->table());
-    $this->_table(self::merge_attributes($attributes, $this->config['attributes']));
-    if (isset($this->config['table_actions']) && is_array($this->config['table_actions'])) {
-      $this->_table_actions('div', array('class' => 'table-actions'));
-    }
+    $attributes = array('id' => $this->model->table(), 'class' => 'table table-bordered table-hover');
+    $this->_table(self::merge_attributes($attributes, Arrays::get($this->config, 'attributes')));
+    $this->_table_actions('div', array('class' => 'table-actions'), false);
   }
 
   protected function table() {
@@ -109,9 +108,7 @@ class Table extends View {
   }
 
   protected function table_actions() {
-    foreach ($this->config['table_actions'] as $this->action) {
-      $this->table_actions_action();
-    }
+    $this->_a(array('href' => URL::self('table_edit'), 'class' => 'btn'), _('Edit table'));
   }
 
   protected function table_actions_action() {

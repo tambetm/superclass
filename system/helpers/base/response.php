@@ -54,9 +54,11 @@ class Response {
     505 => 'HTTP Version Not Supported',
   );
 
-  static public function redirect($url) {
-    if (!_String::starts_with($url, 'http:')) {
-      $url = _URL::base_url().$url;
+  static public function redirect($url = null, $params = null) {
+    if (is_null($url)) {
+      $url = URL::self_url($params);
+    } elseif (!_String::starts_with($url, 'http:')) {
+      $url = _URL::self_url($url, $params);
     }
     header('Location: '.$url);
     exit;

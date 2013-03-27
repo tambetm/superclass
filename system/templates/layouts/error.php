@@ -14,7 +14,7 @@ class Error extends Bootstrap {
   }
 
   public function title() {
-    echo _('We are sorry...');
+    echo _('That doesn look good...');
   }
 
   public function body_content() {
