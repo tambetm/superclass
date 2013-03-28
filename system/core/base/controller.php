@@ -3,55 +3,51 @@ namespace core\base;
 
 use core\Resolver as _Resolver;
 use helpers\URL;
+use helpers\Config;
+use helpers\Response;
+use helpers\Arrays;
 
-class Controller implements \interfaces\Controller {
+class Controller implements \core\interfaces\Controller {
 
-  public function __construct() {
+  protected $config;
+
+  public function __construct($name) {
+    // load configuration for controller
+    Config::load($this->config, CONTROLLER_NAMESPACE.DIRECTORY_SEPARATOR."_$name.php");
     session_start();
   }
 
-  protected function invoke($resource, $action, $method = DEFAULT_SUBACTION, $layout_name = DEFAULT_LAYOUT) {
-    $table = _Resolver::get_database_table($resource);
+  protected function invoke($resource, $action, $method = DEFAULT_METHOD, $layout_name = DEFAULT_LAYOUT) {
+    // resolve model, view and layout names
     $model_class = _Resolver::get_model_class($resource);
     $view_class = _Resolver::get_view_class($resource, $action);
     $layout_class = _Resolver::get_layout_class($layout_name);
 
     // instantiate model and view
-    $model = new $model_class($table);
-    $view = new $view_class($model);
+    $model = new $model_class($resource);
+    $view = new $view_class($model, $action);
 
-    // call appropriate view method depending on request method
-    $request_method = $_SERVER['REQUEST_METHOD'];
-    switch ($request_method) {
-      case 'GET':
-        $view->get($_GET);
-        break;
-
-      case 'POST':
-        $view->post($_POST);
-        break;
-
-      default:
-        throw new \BadMethodCallException("Request method '$request_method' unsupported");
-    }
+    // call view method
+    $view->$method();
 
     // instantiate layout with view
     $layout = new $layout_class($view);
-    // call appropriate method, check layout first
-    if (method_exists($layout, $method)) {
-      // render layout
-      call_user_func(array($layout, $method));  
-    } elseif (method_exists($view, $method)) {
-      // render only view
-      call_user_func(array($view, $method));  
-    } else {
-      Response::code(404);
-      throw new \BadMethodCallException("Method '$method' doesn't exist in view or layout");
-    }
+    $layout->render();
+    exit;
   }
 
   public function __call($name, $arguments) {
-    // determine model, view and method from URL
-    $this->invoke(URL::get_resource(), URL::get_action(), URL::get_subaction());
+    if (isset($this->config[$name])) {
+      // if configuration for this method exists, invoke model, view and controller
+      $config = $this->config[$name];
+      $this->invoke(
+        Arrays::get($config, 'model', URL::get_resource()), 
+        Arrays::get($config, 'view', URL::get_action()),
+        Arrays::get($config, 'method', URL::get_method()),
+        Arrays::get($config, 'layout', DEFAULT_LAYOUT));
+    } else {
+      Response::code(404);
+      throw new \BadMethodCallException("Method '$name' doesn't exist in controller");
+    }
   }
 }

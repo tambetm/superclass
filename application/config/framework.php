@@ -1,18 +1,19 @@
 <?php
-// default resource and action
-define('USE_COLLECTION', false);            // is first URL segment namespace or table?
-define('DEFAULT_COLLECTION', 'public');     // database schema or controller subnamespace
-define('DEFAULT_RESOURCE', 'home');      // database table or controller class
-define('DEFAULT_ACTION', 'table');          // controller method or view template
-define('DEFAULT_SUBACTION', 'render');      // view or layout method
-define('DEFAULT_LAYOUT', 'simple');
+// defaults
+define('USE_COLLECTION', false);         // is first URL segment namespace?
+define('DEFAULT_COLLECTION', 'public');  // controller subdirectory or model subdirectory. also determines database schema.
+define('DEFAULT_RESOURCE', 'home');        // controller class or model class. also determines database table.
+define('DEFAULT_ACTION', 'table');        // controller method or view template or (together with model) view name.
+define('DEFAULT_METHOD', 'get');        // view method
+define('DEFAULT_LAYOUT', 'simple');     // default layout
 
 // default classes
-define('DEFAULT_CONTROLLER_CLASS', 'core\Controller');
+define('DEFAULT_CONTROLLER_CLASS', 'core\SmartController');
 define('DEFAULT_MODEL_CLASS', 'core\Model');
 
 // system classes
 define('ERROR_HANDLER_CLASS', 'core\DatabaseErrorHandler');
+define('ERROR_LAYOUT_CLASS', 'templates\layouts\Error');
 
 // namespaces (folders)
 define('CONTROLLER_NAMESPACE', 'controllers');

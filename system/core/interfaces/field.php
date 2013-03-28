@@ -1,5 +1,5 @@
 <?php
-namespace interfaces;
+namespace core\interfaces;
 
 interface Field {
   const KIND_STRING = 'string';
@@ -10,14 +10,16 @@ interface Field {
   const KIND_TIME = 'time';
   const KIND_DATETIME = 'datetime';
   const KIND_ENUM = 'enum';
+  const KIND_LOOKUP = 'lookup';
   
-  public function __construct($column);
+  public function __construct($column, $model);
 
   // meta data
   public function kind();
   public function label();
   public function database_type();
   public function default_value();
+  public function is_updatable();
 
   // input, output and validation
   public function control($name, $value = '');

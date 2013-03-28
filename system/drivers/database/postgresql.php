@@ -3,7 +3,7 @@ namespace drivers\database;
 
 use core\Database;
 
-class Postgresql extends Database implements \interfaces\Database {
+class Postgresql extends Database implements \core\interfaces\Database {
 
   protected function connect() {
     $connection_string = '';
@@ -56,12 +56,14 @@ class Postgresql extends Database implements \interfaces\Database {
     }
   }
 
-  protected function query($sql) {
-    return pg_query($this->connection, $sql);
-  }
-
-  protected function query_params($sql, $params) {
-    return pg_query_params($this->connection, $sql, $params);
+  protected function query($sql, $arg1 = null, $arg2 = null, $arg3 = null) {
+    $args = func_get_args();
+    $sql = array_shift($args);
+    if (empty($args)) {
+      return pg_query($this->connection, $sql);
+    } else {
+      return pg_query_params($this->connection, $sql, $args);
+    }
   }
 
   protected function fetch_all($result) {

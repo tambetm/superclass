@@ -4,7 +4,7 @@ namespace core\base;
 use helpers\String;
 use helpers\Config;
 
-abstract class Database implements \interfaces\Database {
+abstract class Database implements \core\interfaces\Database {
 
   static $databases = array();
 
@@ -38,8 +38,7 @@ abstract class Database implements \interfaces\Database {
   // have to be implemented by drivers
   //abstract public function escape($value, $type);
   abstract protected function connect();
-  abstract protected function query($sql);
-  abstract protected function query_params($sql, $params);
+  abstract protected function query($sql, $arg1 = null, $arg2 = null, $arg3 = null);
   abstract protected function fetch_all($result);
   abstract protected function fetch_row($result);
   abstract protected function affected_rows($result);
@@ -55,7 +54,7 @@ abstract class Database implements \interfaces\Database {
   // might need to be reimplemented by drivers
   public function columns($table) {
     list($schema, $table) = $this->extract_schema($table);
-    $result = $this->query_params('select * from information_schema.columns where table_schema = $1 and table_name = $2', array($schema, $table));
+    $result = $this->query('select * from information_schema.columns where table_schema = $1 and table_name = $2', $schema, $table);
     if ($result === false) return false;
     return $this->fetch_hashed_rows($result, 'column_name');
   }
@@ -63,7 +62,7 @@ abstract class Database implements \interfaces\Database {
   // might need to be reimplemented by drivers
   public function primary_key($table) {
     list($schema, $table) = $this->extract_schema($table);
-    $result = $this->query_params('select kcu.* from information_schema.key_column_usage kcu join information_schema.table_constraints tc using (constraint_catalog, constraint_schema, constraint_name) where kcu.table_schema = $1 and kcu.table_name = $2 and tc.constraint_type = $3', array($schema, $table, 'PRIMARY KEY'));
+    $result = $this->query('select kcu.* from information_schema.key_column_usage kcu join information_schema.table_constraints tc using (constraint_catalog, constraint_schema, constraint_name) where kcu.table_schema = $1 and kcu.table_name = $2 and tc.constraint_type = $3', $schema, $table, 'PRIMARY KEY');
     if ($result === false) return false;
     return $this->fetch_hashed_rows($result, 'column_name');
   }
@@ -79,19 +78,22 @@ abstract class Database implements \interfaces\Database {
 
   // for inserts, updates and deletes, returns affected rows
   public function execute($sql) {
-    $result = $this->query($sql);
+    $args = func_get_args();
+    $result = call_user_func_array(array($this, 'query'), $args);
     if ($result === false) return false;
     return $this->affected_rows($result);
   }
 
   public function select_all($sql) {
-    $result = $this->query($sql);
+    $args = func_get_args();
+    $result = call_user_func_array(array($this, 'query'), $args);
     if ($result === false) return false;
     return $this->fetch_all($result);
   }
 
   public function select_row($sql) {
-    $result = $this->query($sql);
+    $args = func_get_args();
+    $result = call_user_func_array(array($this, 'query'), $args);
     if ($result === false) return false;
     return $this->fetch_row($result);
   }

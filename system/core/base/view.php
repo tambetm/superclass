@@ -3,7 +3,7 @@ namespace core\base;
 
 use core\HTML as _HTML;
 
-abstract class View extends _HTML implements \interfaces\View {
+abstract class View extends _HTML implements \core\interfaces\View {
 
   protected $model;
 
@@ -11,9 +11,9 @@ abstract class View extends _HTML implements \interfaces\View {
     $this->model = $model;
   }
 
-  public function get($params) {
+  public function get() {
   }
 
-  public function post($params) {
+  public function post() {
   }
 }

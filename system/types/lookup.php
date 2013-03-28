@@ -7,16 +7,17 @@ use helpers\Arrays;
 
 class Lookup extends Enum {
 
-  public function __construct($column) {
-    if (!isset($column['lookup'])) {
+  public function __construct($column, $model) {
+    if (!isset($column['sql'])) {
       throw new \InvalidArgumentException("Missing lookup config for column '$column[column_name]'");
     }
-    $model = new Model($column['lookup']['table']);
-    $data = $model->select(Arrays::get($column['lookup'], 'where'), Arrays::get($column['lookup'], 'order_by'));
+    $data = $model->db()->select_all($column['sql']);
     foreach($data as $row) {
-      $options[$row[$column['lookup']['value']]] = $row[$column['lookup']['label']];
+      $value = array_shift($row);
+      $label = array_shift($row);
+      $options[$value] = $label;
     }
     $column['options'] = $options;
-    parent::__construct($column);
+    parent::__construct($column, $model);
   }
 }

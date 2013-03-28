@@ -4,11 +4,13 @@ namespace core\base;
 use helpers\String;
 use helpers\Messages;
 
-abstract class Field extends \core\HTML implements \interfaces\Field {
+abstract class Field extends \core\HTML implements \core\interfaces\Field {
   protected $column;
+  protected $model;
   
-  public function __construct($column) {
+  public function __construct($column, $model) {
     $this->column = $column;
+    $this->model = $model;
   }
 
   public function control($name, $default = '', $attrs = array()) {
@@ -57,5 +59,9 @@ abstract class Field extends \core\HTML implements \interfaces\Field {
 
   public function default_value() {
     return $this->column['column_default'];
+  }
+
+  public function is_updatable() {
+    return $this->column['is_updatable'] == 'YES';
   }
 }

@@ -1,7 +1,6 @@
 <?php
 namespace core\base;
 
-use templates\layouts\Error;
 use helpers\Messages;
 use helpers\Config;
 
@@ -60,7 +59,8 @@ class ErrorHandler {
         while (ob_get_level() > 0) ob_end_clean();
         // don't send 500 header, because then IE doesn't show our content
         //Response::code(500);
-        $layout = new Error($exception);
+        $error_layout_class = ERROR_LAYOUT_CLASS;
+        $layout = new $error_layout_class($exception);
         $layout->render();
         exit;
       }
@@ -68,10 +68,15 @@ class ErrorHandler {
   }
 
   public function handle_error($errno, $errstr, $errfile, $errline) {
-    // call hande_exception() directly instead of throwing an exception,
-    // because otherwise execution wouldn't continue for notice level errors.
-
-    $this->handle_exception(new \ErrorException(self::$error_levels[$errno].': '.$errstr, $errno, 0, $errfile, $errline));
+    $exception = new \ErrorException(self::$error_levels[$errno].': '.$errstr, $errno, 0, $errfile, $errline);
+    if ($errno & (E_ERROR | E_WARNING | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR)) {
+      // throw exception, so that it can be caught
+      throw $exception;
+    } else {
+      // call hande_exception() directly instead of throwing an exception,
+      // because otherwise execution wouldn't continue for notice level errors.
+      $this->handle_exception($exception);
+    }
   }
 
   public function handle_fatal_error() {

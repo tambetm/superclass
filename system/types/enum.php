@@ -11,8 +11,8 @@ class Enum extends Field {
   protected $value;
   protected $label;
   
-  public function __construct($column) {
-    parent::__construct($column);
+  public function __construct($column, $model) {
+    parent::__construct($column, $model);
     if (!isset($this->column['options']) || !is_array($this->column['options'])) {
       $column_name = $this->column['column_name'];
       throw new \InvalidArgumentException("Column data doesn't include option values for '$column_name'");

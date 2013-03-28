@@ -1,5 +1,5 @@
 <?php
-namespace interfaces;
+namespace core\interfaces;
 
 interface Translator {
   static public function init($lang);

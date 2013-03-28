@@ -1,7 +1,9 @@
 <?php
 namespace core\base;
 
-abstract class Layout extends \core\HTML implements \interfaces\Layout {
+use core\HTML as _HTML;
+
+abstract class Layout extends _HTML implements \core\interfaces\Layout {
 
   protected $view;
 

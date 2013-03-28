@@ -33,6 +33,12 @@ class Boolean extends Field {
     return true;
   }
 
+  public function output($value) {
+    if ($value == 't') {
+      $this->_i(array('class' => 'icon-ok'));
+    }
+  }
+
   public function kind() {
     return self::KIND_BOOLEAN;
   }

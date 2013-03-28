@@ -9,8 +9,7 @@ use helpers\Config;
 class Table extends View {
 
   protected $config;
-  protected $db;
-  protected $table;
+  protected $model_name;
   protected $fields;
   protected $data;
 
@@ -23,19 +22,19 @@ class Table extends View {
 
   public function __construct($model) {
     parent::__construct($model);
-    Config::load($this->config, 'config/views/table.php');
-    Config::load($this->config, VIEW_NAMESPACE.DIRECTORY_SEPARATOR.$model->table().'_table_meta.php');
-
-    $this->db = $model->db();
-    $this->table = $model->table();
+    $this->model_name = $model->name();
     $this->fields = $model->fields();
+
+    Config::load($this->config, 'config/views/table.php');
+    Config::load($this->config, VIEW_NAMESPACE.DIRECTORY_SEPARATOR."_{$this->model_name}_table.php");
+
     if (isset($this->config['columns']) && is_array($this->config['columns'])) {
       $this->fields = array_intersect_key($this->fields, $this->config['columns']);
     }
   }
 
-  public function get($params) {
-    $this->data = $this->model->select($params);
+  public function get() {
+    $this->data = $this->model->select($_GET);
   }
 
   public function title() {
@@ -43,7 +42,7 @@ class Table extends View {
   }
 
   public function render() {
-    $attributes = array('id' => $this->model->table(), 'class' => 'table table-bordered table-hover');
+    $attributes = array('id' => $this->model_name, 'class' => 'table table-bordered table-hover');
     $this->_table(self::merge_attributes($attributes, Arrays::get($this->config, 'attributes')));
     $this->_table_actions('div', array('class' => 'table-actions'), false);
   }

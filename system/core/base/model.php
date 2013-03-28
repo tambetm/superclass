@@ -6,13 +6,16 @@ use helpers\String;
 use helpers\Config;
 use helpers\Arrays;
 
-class Model implements \interfaces\Model {
+class Model implements \core\interfaces\Model {
+  protected $name;
+  protected $config;
 
   private $db;
   private $fields;
   private $primary_key;
 
   protected $table;
+  protected $caption;
   protected $where = '';
   protected $order_by = '';
   protected $limit = 0;
@@ -21,48 +24,53 @@ class Model implements \interfaces\Model {
   protected $names = '';
   protected $values = '';
 
-  public function __construct($table, $db = null) {
-    $this->table = $table;
-    $this->db = $db;
+  public function __construct($name) {
+    $this->name = $name;
+    Config::load($this->config, MODEL_NAMESPACE.DIRECTORY_SEPARATOR."_$name.php");
 
-    Config::load($this->config, MODEL_NAMESPACE.DIRECTORY_SEPARATOR.$table.'_meta.php');
+    $this->table = isset($this->config['table']) ? $this->config['table'] : Resolver::get_database_table($name);
+    $this->caption = isset($this->config['caption']) ? $this->config['caption'] : String::human($name);
   }
 
   public function db() {
     if (is_null($this->db)) {
-      $this->db = Database::database();
+      if (isset($this->config['database'])) {
+        $this->db = Database::database($this->config['database']);
+      } else {
+        $this->db = Database::database();
+      }
     }
     return $this->db;
   }
 
-  public function table() {
-    return $this->table;
+  public function name() {
+    return $this->name;
   }
 
   public function caption() {
-    return isset($this->config['caption']) ? $this->config['caption'] : String::human($this->table);
+    return $this->caption;
   }
 
   protected function load_fields() {
     if (is_null($this->fields)) {
       $columns = $this->db()->columns($this->table);
       if (!is_array($columns) || count($columns) == 0) {
-        throw new \UnexpectedValueException("Invalid column metadata for table '$this->table'");
+        throw new \UnexpectedValueException("Missing column metadata for table '$this->table'");
       }
 
       foreach ($columns as $name => $column) {
         // load configuration outside of field class, because configuration values might affect field class
         if ($column['domain_name']) {
-          Config::load($column, DOMAIN_NAMESPACE.DIRECTORY_SEPARATOR.$column['domain_name'].'_meta.php');
+          Config::load($column, DOMAIN_NAMESPACE.DIRECTORY_SEPARATOR."_{$column['domain_name']}.php");
         }
-        Config::load($column, FIELD_NAMESPACE.DIRECTORY_SEPARATOR.$column['table_name'].'_'.$column['column_name'].'_meta.php');
+        Config::load($column, FIELD_NAMESPACE.DIRECTORY_SEPARATOR."_{$this->name}_{$column['column_name']}.php");
         if (isset($this->config['columns'][$column['column_name']])) {
           // apply model config to column, because it must override domain or field config
           $column = array_merge($column, $this->config['columns'][$column['column_name']]);
         }
 
         $field_class = Resolver::get_field_class($column);
-        $this->fields[$name] = new $field_class($column);
+        $this->fields[$name] = new $field_class($column, $this);
       }
     }
   }
@@ -79,9 +87,12 @@ class Model implements \interfaces\Model {
 
   protected function load_primary_key() {
     if (is_null($this->primary_key)) {
-       $primary_key = $this->db()->primary_key($this->table);
-       if (!is_array($primary_key)) throw new \UnexpectedValueException("Invalid metadata for primary key for table '$this->table'");
-       $this->primary_key = $primary_key;
+       if (isset($this->config['primary_key'])) {
+         $this->primary_key = $this->config['primary_key'];
+       } else {
+         $this->primary_key = $this->db()->primary_key($this->table);
+         if (!is_array($this->primary_key) || count($this->primary_key) == 0) throw new \UnexpectedValueException("Missing primary key for table '$this->table'");
+       }
     }
   }
 

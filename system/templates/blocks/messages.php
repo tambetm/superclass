@@ -68,6 +68,10 @@ class Messages extends HTML {
   }
 
   public function script() {
-    ?>$('.alert').alert();<?php
+?>
+$(function() {
+  $('.alert').alert();
+});
+<?php
   }
 }

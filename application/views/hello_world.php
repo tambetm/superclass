@@ -3,7 +3,7 @@ namespace views;
 
 use core\View;
 
-class Home extends View {
+class HelloWorld extends View {
   public function title() {
     return 'My first app';
   }

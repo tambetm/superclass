@@ -1,8 +1,7 @@
 <?php
-namespace interfaces;
+namespace core\interfaces;
 
 interface Database {
-
   public function __construct($name); // TODO: $name => $config?
 
   // meta data
@@ -21,9 +20,9 @@ interface Database {
   public function rollback();
 
   // abstract functions, should be implemented by driver
-  //protected function connect();
-  //protected function query();
-  //protected function fetch_all();
-  //protected function fetch_row();
-  //protected function affected_rows();
+  //abstract protected function connect();
+  //abstract protected function query();
+  //abstract protected function fetch_all();
+  //abstract protected function fetch_row();
+  //abstract protected function affected_rows();
 }

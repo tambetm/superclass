@@ -11,8 +11,8 @@ class Numeric extends Field {
   protected $max;
   protected $min;
 
-  public function __construct($meta) {
-    parent::__construct($meta);
+  public function __construct($column, $model) {
+    parent::__construct($column, $model);
     $this->locale = Locale::get_conventions();
     $this->max = pow($this->column['numeric_precision_radix'], $this->column['numeric_precision'] - $this->column['numeric_scale']) - pow($this->column['numeric_precision_radix'], -$this->column['numeric_scale']);
     $this->min = -$this->max;

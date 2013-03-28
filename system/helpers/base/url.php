@@ -65,9 +65,9 @@ class URL {
     return Arrays::get($segments, USE_COLLECTION ? 2 : 1, DEFAULT_ACTION);
   }
 
-  public static function get_subaction() {
+  public static function get_method() {
     $segments = self::segments();
-    return Arrays::get($segments, USE_COLLECTION ? 3 : 2, DEFAULT_SUBACTION);
+    return Arrays::get($segments, USE_COLLECTION ? 3 : 2, strtolower($_SERVER['REQUEST_METHOD']));
   }
 
   public static function current_path() {
