@@ -42,14 +42,16 @@ set_error_handler(array($error_handler, 'handle_error'));
 set_exception_handler(array($error_handler, 'handle_exception'));
 register_shutdown_function(array($error_handler, 'handle_fatal_error'));
 
-// take resource and action from URL
-$resource = URL::get_resource();
+// take model and view from URL
+$model_name = URL::get_model_name();
+$view_name = URL::get_view_name();
 $action = URL::get_action();
+$arguments = URL::get_arguments();
 
 // extract class name and method name from URL path
-$class = Resolver::get_controller_class($resource);
-$method = Resolver::get_controller_method($action);
+$class = Resolver::get_controller_class($model_name);
+$method = Resolver::get_controller_method($view_name);
 
 // instantiate and call controller object
-$obj = new $class($resource, $action);
-$obj->$method();
+$obj = new $class($model_name, $view_name, $action);
+call_user_func_array(array($obj, $method), $arguments);

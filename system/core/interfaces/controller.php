@@ -2,5 +2,5 @@
 namespace core\interfaces;
 
 interface Controller {
-  public function __construct($name);
+  public function __construct($model_name, $view_name, $action);
 }

@@ -10,9 +10,9 @@ class SmartController extends _Controller {
     if (isset($this->config[$name])) {
       parent::__call($name, $arguments);
     } else {
-      // if parent didn't find it, use information from URL
-      // to determine model, view and method. use default layout.
-      $this->invoke(URL::get_resource(), URL::get_action(), URL::get_method());
+      // if no configuration, then use information from URL
+      // to determine model, view and action. use default layout.
+      $this->invoke($this->model_name, $this->view_name, $this->action);
     }
   }
 }

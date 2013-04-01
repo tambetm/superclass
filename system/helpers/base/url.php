@@ -7,15 +7,6 @@ class URL {
 
   public static function self() {
     $segments = self::segments();
-    $index = 0;
-    if (USE_COLLECTION) {
-      $segments[$index] = Arrays::get($segments, $index, DEFAULT_COLLECTION);
-      $index++;
-    }
-    $segments[$index] = Arrays::get($segments, $index, DEFAULT_RESOURCE);
-    $index++;
-    $segments[$index] = Arrays::get($segments, $index, DEFAULT_ACTION);
-
     $args = func_get_args();
     // non-array argument replaces last part of the url
     if (isset($args[0]) && !is_array($args[0])) {
@@ -24,9 +15,9 @@ class URL {
     }
     $url = self::base_path().implode('/', $segments);
     if (isset($args[0]) && is_array($args[0])) {
-      // array argument is added as URL parameters
       // allow reset url parameters with array()
       if (!empty($args[0])) {
+        // array argument is added as URL parameters
         $url .= '?'.http_build_query($args[0]);
       }
     } elseif ($_SERVER['QUERY_STRING']) {
@@ -46,28 +37,42 @@ class URL {
       } else {
         $segments = array();
       }
+
+      // assign default values to segments
+      $index = 0;
+      if (USE_NAMESPACE) {
+        $segments[$index] = Arrays::get($segments, $index, DEFAULT_NAMESPACE);
+        $index++;
+      }
+      $segments[$index] = Arrays::get($segments, $index, DEFAULT_MODEL);
+      $index++;
+      $segments[$index] = Arrays::get($segments, $index, DEFAULT_VIEW);
     }
 
     return $segments;
   }
 
-  public static function get_resource() {
+  public static function get_model_name() {
     $segments = self::segments();
-    if (USE_COLLECTION) {
-      Arrays::get($segments, 0, DEFAULT_COLLECTION).'/'.Arrays::get($segments, 1, DEFAULT_RESOURCE);
+    if (USE_NAMESPACE) {
+      return $segments[0].'/'.$segments[1];
     } else {
-      return Arrays::get($segments, 0, DEFAULT_RESOURCE);
+      return $segments[0];
     }
   }
 
-  public static function get_action() {
+  public static function get_view_name() {
     $segments = self::segments();
-    return Arrays::get($segments, USE_COLLECTION ? 2 : 1, DEFAULT_ACTION);
+    return $segments[USE_NAMESPACE ? 2 : 1];
   }
 
-  public static function get_method() {
+  public static function get_action() {
+    return isset($_REQUEST['_action']) ? $_REQUEST['_action'] : strtolower($_SERVER['REQUEST_METHOD']);
+  }
+
+  public static function get_arguments() {
     $segments = self::segments();
-    return Arrays::get($segments, USE_COLLECTION ? 3 : 2, strtolower($_SERVER['REQUEST_METHOD']));
+    return array_slice($segments, USE_NAMESPACE ? 3 : 2);
   }
 
   public static function current_path() {
@@ -76,11 +81,8 @@ class URL {
 
   // relative path starting from base_path()
   public static function site_path() {
-    if (isset($_SERVER['PATH_INFO'])) {
-      return ltrim($_SERVER['PATH_INFO'], '/');
-    } else {
-      return (USE_COLLECTION ? DEFAULT_COLLECTION.'/' : '').DEFAULT_RESOURCE.'/'.DEFAULT_ACTION;
-    }
+    $segments = self::segments();
+    return implode('/', $segments);
   }
 
   public static function base_path() {
