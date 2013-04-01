@@ -11,6 +11,7 @@ class Table extends View {
   protected $config;
   protected $model_name;
   protected $fields;
+  protected $primary_key;
   protected $data;
 
   // internal loop variables
@@ -18,12 +19,14 @@ class Table extends View {
   protected $field_meta;
   protected $nr;
   protected $row;
+  protected $keys;
   protected $action;
 
   public function __construct($model) {
     parent::__construct($model);
     $this->model_name = $model->name();
     $this->fields = $model->fields();
+    $this->primary_key = $model->primary_key();
 
     Config::load($this->config, 'config/views/table.php');
     Config::load($this->config, VIEW_NAMESPACE.DIRECTORY_SEPARATOR."_{$this->model_name}_table.php");
@@ -69,6 +72,7 @@ class Table extends View {
     foreach ($this->fields as $this->field => $this->field_meta) {
       $this->_table_thead_tr_th();
     }
+    $this->table_thead_tr_actions();
   }
 
   protected function table_thead_tr_th() {
@@ -77,6 +81,12 @@ class Table extends View {
     } else {
       echo $this->field_meta->label();
     }
+  }
+
+  protected function table_thead_tr_actions() {
+    $this->_table_thead_tr_view_th();
+    $this->_table_thead_tr_edit_th();
+    $this->_table_thead_tr_delete_th();
   }
 
   protected function _table_tbody() {
@@ -96,10 +106,30 @@ class Table extends View {
     foreach ($this->fields as $this->field => $this->field_meta) {
       $this->_table_tbody_tr_td();
     }
+    $this->keys = array_intersect_key($this->row, $this->primary_key);
+    $this->table_tbody_tr_actions();
+  }
+
+  protected function table_tbody_tr_actions() {
+    $this->_table_tbody_tr_view_td();
+    $this->_table_tbody_tr_edit_td();
+    $this->_table_tbody_tr_delete_td();
   }
 
   protected function table_tbody_tr_td() {
     $this->field_meta->output($this->row[$this->field]);
+  }
+
+  protected function table_tbody_tr_view_td() {
+    $this->_a(array('href' => URL::self('view', $this->keys), 'class' => 'btn btn-small view'), _('View'));
+  }
+
+  protected function table_tbody_tr_edit_td() {
+    $this->_a(array('href' => URL::self('edit', $this->keys), 'class' => 'btn btn-small edit'), _('Edit'));
+  }
+
+  protected function table_tbody_tr_delete_td() {
+    $this->_a(array('href' => URL::self('delete', $this->keys), 'class' => 'btn btn-small delete btn-danger'), _('Delete'));
   }
 
   protected function table_tfoot() {

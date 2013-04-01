@@ -19,7 +19,6 @@ class TableEdit extends Table {
 
   public function __construct($model) {
     parent::__construct($model);
-    $this->config['primary_key'] = $model->primary_key();
     $this->db = $model->db();
 
     Config::load($this->config, 'config/views/table_edit.php');
@@ -48,7 +47,7 @@ class TableEdit extends Table {
     $success = true;
     $this->db->begin();
     foreach ($this->selectors as $nr => $selected) {
-      $row = $this->data[$nr];
+      $row =& $this->data[$nr];
       $operation = $this->operations[$nr];
       Messages::item_prefix(sprintf(_('Row %d: '), $nr + 1));
       switch($operation) {
@@ -121,7 +120,6 @@ class TableEdit extends Table {
   protected function table_thead_tr() {
     $this->_table_thead_tr_selector_td();
     parent::table_thead_tr();
-    $this->_table_thead_tr_delete_td();
   }
 
   protected function table_thead_tr_selector_td() {
@@ -130,6 +128,10 @@ class TableEdit extends Table {
       'type' => 'checkbox',
     );
     $this->_input($attributes);
+  }
+
+  protected function table_thead_tr_actions() {
+    $this->_table_thead_tr_delete_th();
   }
 
   protected function _table_tbody_tr() {
@@ -149,7 +151,6 @@ class TableEdit extends Table {
   protected function table_tbody_tr() {
     $this->_table_tbody_tr_selector_td();
     parent::table_tbody_tr();
-    $this->_table_tbody_tr_delete_td();
   }
 
   protected function table_tbody_tr_selector_td() {
@@ -171,8 +172,8 @@ class TableEdit extends Table {
     );
     $this->_input($attributes);
 
-    if ($this->operations[$this->nr] != 'insert' && is_array($this->config['primary_key'])) {
-      foreach($this->config['primary_key'] as $field => $dummy) {
+    if ($this->operations[$this->nr] != 'insert' && is_array($this->primary_key)) {
+      foreach($this->primary_key as $field => $dummy) {
         $this->_input(array(
           'type' => 'hidden', 
           'name' => "{$this->model_name}[where][{$this->nr}][{$field}]", 
@@ -182,6 +183,10 @@ class TableEdit extends Table {
         ));
       }
     }
+  }
+
+  protected function table_tbody_tr_actions() {
+    $this->_table_tbody_tr_delete_td();
   }
 
   protected function table_tbody_tr_delete_td() {
@@ -236,7 +241,7 @@ $(function() {
   });
 
   $('#addnew').click(function() {
-    $.get('<?=URL::self('table_edit/add_new')?>', function(data) {
+    $.get('<?=URL::self($_GET + array('_action' => 'add_new'))?>', function(data) {
       var count = $('#<?=$this->model_name?> tbody tr').size();
       data = data.replace('__prototype__', count, 'g');
       $('#<?=$this->model_name?> tbody').append(data);
