@@ -9,10 +9,8 @@ use helpers\Config;
 class Table extends View {
 
   protected $config;
-  protected $model_name;
   protected $fields;
   protected $primary_key;
-  protected $data;
 
   // internal loop variables
   protected $name;
@@ -20,11 +18,9 @@ class Table extends View {
   protected $nr;
   protected $row;
   protected $keys;
-  protected $action;
 
   public function __construct($model) {
     parent::__construct($model);
-    $this->model_name = $model->name();
     $this->fields = $model->fields();
     $this->primary_key = $model->primary_key();
 
@@ -34,10 +30,6 @@ class Table extends View {
     if (isset($this->config['columns']) && is_array($this->config['columns'])) {
       $this->fields = array_intersect_key($this->fields, $this->config['columns']);
     }
-  }
-
-  public function get() {
-    $this->data = $this->model->select($_GET);
   }
 
   public function title() {
@@ -121,15 +113,15 @@ class Table extends View {
   }
 
   protected function table_tbody_tr_view_td() {
-    $this->_a(array('href' => URL::self('view', $this->keys), 'class' => 'btn btn-small view'), _('View'));
+    $this->_view_a(array('href' => URL::self('view', $this->keys), 'class' => 'btn btn-mini view'), _('View'));
   }
 
   protected function table_tbody_tr_edit_td() {
-    $this->_a(array('href' => URL::self('edit', $this->keys), 'class' => 'btn btn-small edit'), _('Edit'));
+    $this->_edit_a(array('href' => URL::self('edit', $this->keys), 'class' => 'btn btn-mini edit'), _('Edit'));
   }
 
   protected function table_tbody_tr_delete_td() {
-    $this->_a(array('href' => URL::self('delete', $this->keys), 'class' => 'btn btn-small delete btn-danger'), _('Delete'));
+    $this->_delete_a(array('href' => URL::self('delete', $this->keys), 'class' => 'btn btn-mini btn-danger delete'), _('Delete'));
   }
 
   protected function table_tfoot() {
@@ -137,10 +129,7 @@ class Table extends View {
   }
 
   protected function table_actions() {
-    $this->_a(array('href' => URL::self('table_edit'), 'class' => 'btn'), _('Edit table'));
-  }
-
-  protected function table_actions_action() {
-    call_user_func_array(array($this, '_'), $this->action);
+    $this->_add_new_a(array('href' => URL::self('add_new'), 'class' => 'btn add_new'), _('Add new'));
+    $this->_table_edit_a(array('href' => URL::self('table_edit'), 'class' => 'btn table_edit'), _('Edit table'));
   }
 }

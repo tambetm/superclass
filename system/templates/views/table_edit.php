@@ -3,99 +3,18 @@ namespace templates\views;
 
 use templates\views\Table;
 use helpers\URL;
-use helpers\Messages;
-use helpers\Response;
 use helpers\Arrays;
 use helpers\Config;
 
 class TableEdit extends Table {
 
-  protected $db;
-  protected $where;
   protected $defaults;
-  protected $selectors;
-  protected $operations;
-  protected $row_status;
 
   public function __construct($model) {
     parent::__construct($model);
-    $this->db = $model->db();
 
     Config::load($this->config, 'config/views/table_edit.php');
     Config::load($this->config, VIEW_NAMESPACE.DIRECTORY_SEPARATOR."_{$this->model_name}_table_edit.php");
-  }
-
-  public function post() {
-    $table = Arrays::get($_POST, $this->model_name);
-    if (!is_array($table)) {
-      throw new \InvalidArgumentException("No data posted to table '{$this->model_name}'");
-    }
-
-    $this->selectors = Arrays::get($table, 'selector');
-    $this->operations = Arrays::get($table, 'operation');
-    $this->data = Arrays::get($table, 'data');
-    $this->where = Arrays::get($table, 'where');;
-
-    if (!is_array($this->selectors)) {
-      Messages::alert(_('You did not choose any rows.'));
-      Response::redirect();
-    }
-
-    $updates = 0;
-    $inserts = 0;
-    $deletes = 0;
-    $success = true;
-    $this->db->begin();
-    foreach ($this->selectors as $nr => $selected) {
-      $row =& $this->data[$nr];
-      $operation = $this->operations[$nr];
-      Messages::item_prefix(sprintf(_('Row %d: '), $nr + 1));
-      switch($operation) {
-
-        case 'insert':
-          if ($this->model->validate($row)) {
-            $result = $this->model->insert($row);
-            $inserts += $result;
-          } else {
-            $result = false;
-          }
-          break;
-
-        case 'update':
-          if ($this->model->validate($row)) {
-            $where = $this->where[$nr];
-            $result = $this->model->update($row, $where);
-            $updates += $result;
-          } else {
-            $result = false;
-          }
-          break;
-
-        case 'delete':
-          $where = $this->where[$nr];
-          $result = $this->model->delete($where);
-          $deletes += $result;
-          break;
-
-        default:
-          throw new \InvalidArgumentException("Unknown operation '$operation'");
-      }
-      if (!$result) $this->row_status[$nr] = 'error';
-      $success = $success && $result;
-    }
-    Messages::item_prefix('');
-
-    if ($success) {
-      $this->db->commit();
-      if ($inserts > 0) Messages::success_item(sprintf(ngettext('%d record inserted.', '%d records inserted.', $inserts), $inserts));
-      if ($updates > 0) Messages::success_item(sprintf(ngettext('%d record updated.', '%d records updated.', $updates), $updates));
-      if ($deletes > 0) Messages::success_item(sprintf(ngettext('%d record deleted.', '%d records deleted.', $deletes), $deletes));
-      Messages::success(_('Changes saved successfully.'));
-      Response::redirect();
-    } else {
-      $this->db->rollback();
-      Messages::error(_('Error saving changes.'));
-    }
   }
 
   public function title() {
@@ -163,24 +82,34 @@ class TableEdit extends Table {
     if (isset($this->selectors[$this->nr])) {
       $attributes['checked'] = 'checked';
     }
-    $this->_input($attributes);
+    $this->_selector_input($attributes);
 
     $attributes = array(
       'type' => 'hidden',
       'name' => "{$this->model_name}[operation][{$this->nr}]",
       'value' => isset($this->operations[$this->nr]) ? $this->operations[$this->nr] : 'update',
     );
-    $this->_input($attributes);
+    $this->_operation_input($attributes);
 
-    if ($this->operations[$this->nr] != 'insert' && is_array($this->primary_key)) {
-      foreach($this->primary_key as $field => $dummy) {
-        $this->_input(array(
-          'type' => 'hidden', 
-          'name' => "{$this->model_name}[where][{$this->nr}][{$field}]", 
-          'value' => isset($this->where[$this->nr][$field]) ? 
-            $this->where[$this->nr][$field] : 
-            $this->row[$field],
-        ));
+    if ($this->operations[$this->nr] != 'insert') {
+      if (is_array($this->primary_key)) {
+        foreach($this->primary_key as $field => $dummy) {
+          $this->_where_input(array(
+            'type' => 'hidden', 
+            'name' => "{$this->model_name}[where][{$this->nr}][{$field}]", 
+            'value' => isset($this->where[$this->nr][$field]) ? 
+              $this->where[$this->nr][$field] : 
+              $this->row[$field],
+          ));
+        }
+      } else {
+        foreach($this->row as $field => $value) {
+          $this->_where_input(array(
+            'type' => 'hidden', 
+            'name' => "{$this->model_name}[where][{$this->nr}][{$field}]", 
+            'value' => $value,
+          ));
+        }
       }
     }
   }
@@ -215,12 +144,12 @@ class TableEdit extends Table {
   }
 
   protected function table_addnew_tr_td() {
-    $this->_button(array('type' => 'button', 'id' => 'addnew', 'class' => 'btn btn-small'), _('Add new'));
+    $this->_addnew_button(array('type' => 'button', 'id' => 'addnew', 'class' => 'btn btn-small'), _('Add new'));
   }
 
   protected function table_actions() {
-    $this->_button(array('type' => 'submit', 'class' => 'btn btn-primary'), _('Save changes'));
-    $this->_a(array('href' => URL::self('table'), 'class' => 'btn'), _('Back'));
+    $this->_save_button(array('type' => 'submit', 'class' => 'btn btn-primary'), _('Save changes'));
+    $this->_back_a(array('href' => URL::self('table'), 'class' => 'btn'), _('Back'));
   }
 
   public function add_new() {

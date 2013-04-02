@@ -39,6 +39,17 @@ class Boolean extends Field {
     }
   }
 
+  public function format($value) {
+    switch ($value) {
+      case 't':
+        return _('yes');
+      case 'f':
+        return _('no');
+      default:
+        return '';
+    }
+  }
+
   public function kind() {
     return self::KIND_BOOLEAN;
   }

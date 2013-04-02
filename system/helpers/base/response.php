@@ -55,9 +55,8 @@ class Response {
   );
 
   static public function redirect($url = null, $params = null) {
-    if (is_null($url)) {
-      $url = URL::self_url($params);
-    } elseif (!_String::starts_with($url, 'http:')) {
+    if (!_String::starts_with($url, 'http')) {
+      // make path absolute url
       $url = _URL::self_url($url, $params);
     }
     header('Location: '.$url);

@@ -4,12 +4,12 @@ namespace templates\views;
 use core\View as _View;
 use core\Field;
 use helpers\URL;
+use helpers\Config;
 
 class View extends _View {
 
-  protected $model_name;
   protected $fields;
-  protected $data;
+  protected $config;
 
   // internal loop variables
   protected $nr;
@@ -19,12 +19,10 @@ class View extends _View {
 
   public function __construct($model) {
     parent::__construct($model);
-    $this->model_name = $model->name();
     $this->fields = $model->fields();
-  }
 
-  public function get() {
-    $this->data = $this->model->select($_GET);
+    Config::load($this->config, 'config/views/view.php');
+    Config::load($this->config, VIEW_NAMESPACE.DIRECTORY_SEPARATOR."_{$this->model_name}_view.php");
   }
 
   public function title() {
@@ -32,20 +30,27 @@ class View extends _View {
   }
 
   public function render() {
-    if (is_array($this->data)) {
-      foreach ($this->data as $this->nr => $this->row) {
-        $this->_form(array('action' => URL::self(), 'method' => 'POST', 'class' => 'form-horizontal'));
-      }
-    }
+    $this->_form(array('action' => URL::self(), 'method' => 'post', 'class' => 'form-horizontal'));
   }
 
   protected function form() {
+    if (is_array($this->data)) {
+      foreach ($this->data as $this->nr => $this->row) {
+        $this->_fieldset();
+      }
+    }
+    $this->_form_actions('div', array('class' => 'form-actions'));
+  }
+
+  protected function fieldset() {
+    if (isset($this->config['caption_field'])) {
+      $this->_legend(null, $this->row[$this->config['caption_field']]);
+    }
     if (is_array($this->fields)) {
       foreach ($this->fields as $this->field => $this->field_meta) {
         $this->_control_group('div', array('class' => 'control-group'));
       }
     }
-    $this->_form_actions('div', array('class' => 'form-actions'));
   }
 
   protected function control_group() {
@@ -66,7 +71,7 @@ class View extends _View {
   }
 
   protected function form_actions() {
-    $this->_a(array('href' => URL::self('edit'), 'class' => 'btn'), _('Edit'));
-    $this->_a(array('href' => URL::self('table', array()), 'class' => 'btn'), _('Back'));
+    $this->_edit_a(array('href' => URL::self('edit'), 'class' => 'btn'), _('Edit'));
+    $this->_back_a(array('href' => URL::self('table', array()), 'class' => 'btn'), _('Back'));
   }
 }

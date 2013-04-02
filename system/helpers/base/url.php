@@ -11,7 +11,9 @@ class URL {
     // non-array argument replaces last part of the url
     if (isset($args[0]) && !is_array($args[0])) {
       $path = array_shift($args);
-      $segments[count($segments) - 1] = $path;
+      if (!is_null($path)) {
+        $segments[count($segments) - 1] = $path;
+      }
     }
     $url = self::base_path().implode('/', $segments);
     if (isset($args[0]) && is_array($args[0])) {
