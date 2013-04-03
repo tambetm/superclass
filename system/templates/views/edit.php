@@ -3,6 +3,7 @@ namespace templates\views;
 
 use helpers\URL;
 use helpers\Request;
+use helpers\Messages;
 
 class Edit extends View {
 
@@ -50,7 +51,15 @@ class Edit extends View {
       'value' => isset($this->operations[$this->nr]) ? $this->operations[$this->nr] : 'update',
     ));
   }
-  
+
+  protected function _control_group($tag, $attributes) {
+    $field_status = Messages::field_status($this->nr, $this->field);
+    if ($field_status) {
+      $attributes = self::merge_attributes($attributes, array('class' => $field_status));
+    }
+    parent::_control_group($tag, $attributes);
+  }
+
   protected function controls() {
     $name = "{$this->model_name}[data][{$this->nr}][{$this->field}]";
     $value = $this->row[$this->field];
@@ -59,6 +68,10 @@ class Edit extends View {
     } else {
       $this->_readonly_input(array('type' => 'hidden', 'name' => $name, 'value' => $value));
       parent::controls();
+    }
+    $field_message = Messages::field_message($this->nr, $this->field);
+    if ($field_message) {
+      $this->_field_span(array('class' => 'help-inline message'), $field_message);
     }
   }
 

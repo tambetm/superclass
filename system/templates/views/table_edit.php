@@ -5,6 +5,7 @@ use templates\views\Table;
 use helpers\URL;
 use helpers\Arrays;
 use helpers\Config;
+use helpers\Messages;
 
 class TableEdit extends Table {
 
@@ -53,17 +54,20 @@ class TableEdit extends Table {
     $this->_table_thead_tr_delete_th();
   }
 
-  protected function _table_tbody_tr() {
-    $attributes = array();
-    // make deleted records different colour
+  protected function _table_tbody_tr($attributes = null) {
     $operation = Arrays::get($this->operations, $this->nr, 'update');
-    $attributes['class'] = $operation;
-    if (isset($this->row_status[$this->nr])) {
-      $attributes['class'] .= ' '.$this->row_status[$this->nr];
-    } elseif ($operation == 'delete') {
-      // hide deleted row after validation error
-      $attributes['class'] .= ' hide';
+    $attributes = self::merge_attributes($attributes, array('class' => $operation));
+
+    $row_status = Messages::row_status($this->nr);
+    if ($row_status) {
+      $attributes = self::merge_attributes($attributes, array('class' => $row_status));
     }
+
+    if ($operation == 'delete' && !$row_status) {
+      // hide deleted row, if there is no error
+      $attributes = self::merge_attributes($attributes, array('class' => 'hide'));
+    }
+
     parent::_table_tbody_tr($attributes);
   }
 
@@ -120,6 +124,14 @@ class TableEdit extends Table {
 
   protected function table_tbody_tr_delete_td() {
     $this->_button(array('type' => 'button', 'class' => 'btn btn-small btn-danger delete'), _('Delete'));
+  }
+
+  protected function _table_tbody_tr_td($attributes = null) {
+    $field_status = Messages::field_status($this->nr, $this->field);
+    if ($field_status) {
+      $attributes = self::merge_attributes($attributes, array('class' => 'control-group '.$field_status));
+    }
+    parent::_table_tbody_tr_td($attributes);
   }
 
   protected function table_tbody_tr_td() {

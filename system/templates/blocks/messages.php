@@ -24,12 +24,10 @@ class Messages extends HTML {
 
   public function messages() {
     foreach ($this->messages as $this->message) {
-      if ($this->message['type'] == 'log') {
-        foreach ($this->message['items'] as $this->item) {
-          $this->_pre();
-        }
-      } else {
+      if (isset($this->message['title'])) {
         $this->_message('div', array('class' => 'alert alert-block alert-'.$this->message['type'].' fade in'));
+      } else {
+        $this->_text('pre');
       }
     }
   }
@@ -60,11 +58,7 @@ class Messages extends HTML {
   }
 
   public function li() {
-    echo self::escape($this->item);
-  }
-
-  public function pre() {
-    echo self::escape($this->item);
+    echo self::escape((isset($this->item['prefix']) ? $this->item['prefix'] : '').$this->item['text']);
   }
 
   public function script() {

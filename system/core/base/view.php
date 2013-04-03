@@ -54,9 +54,7 @@ abstract class View extends _HTML implements \core\interfaces\View {
     foreach ($this->selectors as $nr => $selected) {
       $row =& $this->data[$nr];
       $operation = $this->operations[$nr];
-      if (count($this->data) > 1) {
-        Messages::item_prefix(sprintf(_('Record %d: '), $nr + 1));
-      }
+      Messages::item_row($nr, sprintf(_('Record %d: '), $nr + 1));
       switch($operation) {
 
         case 'insert':
@@ -90,7 +88,7 @@ abstract class View extends _HTML implements \core\interfaces\View {
       if (!$result) $this->row_status[$nr] = 'error';
       $success = $success && $result;
     }
-    Messages::item_prefix('');
+    Messages::item_row(null);
 
     if ($success) {
       $this->db->commit();

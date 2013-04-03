@@ -5,6 +5,7 @@ use core\Database;
 use helpers\String;
 use helpers\Config;
 use helpers\Arrays;
+use helpers\Messages;
 
 class Model implements \core\interfaces\Model {
   protected $name;
@@ -244,10 +245,12 @@ class Model implements \core\interfaces\Model {
     $success = true;
     foreach($data as $name => &$value) {
       $field = $this->field($name);
+      Messages::item_field($name);
       if (!$field->validate($value)) {
         $success = false;
       }
     }
+    Messages::item_field(null);
     return $success;
   }
 

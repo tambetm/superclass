@@ -6,38 +6,32 @@ use helpers\Session as _Session;
 class Messages {
 
   const SESSION_MESSAGES_NAME = 'helpers\Messages::messages';
-  const SESSION_ITEMS_NAME = 'helpers\Messages::items';
 
-  static public $headings;
-  
-  public function init() {
-    self::$headings = array(
-      'error' => _('Error'),
-      'alert' => _('Alert'),
-      'success' => _('Success'),
-      'info' => _('Info'),
-      'log' => _('Log'),
-      'debug' => _('Debug'),
-    );
-  }
-
+  static protected $row = null;
   static protected $prefix = '';
+  static protected $field = null;
+  static protected $items = array();
+  static protected $field_items = array();
+  static protected $row_statuses = array();
 
   static public function message($type, $title, $text = null) {
     // make up a message
     $message = array(
       'type' => $type,
       'title' => $title,
-      'text' => $text,
     );
 
-    // add message items
-    $items = _Session::get(self::SESSION_ITEMS_NAME, array());
-    if (isset($items[$type])) {
-      $message['items'] = $items[$type];
-      unset($items[$type]);
+    // add text, if set
+    if (!is_null($text)) {
+      $message['text'] = $text;
     }
-    _Session::set(self::SESSION_ITEMS_NAME, $items);
+
+    // add message items
+    if (isset(self::$items[$type])) {
+      $message['items'] = self::$items[$type];
+      // purge items of this type
+      unset(self::$items[$type]);
+    }
 
     // add message to list
     $messages = _Session::get(self::SESSION_MESSAGES_NAME, array());
@@ -46,28 +40,52 @@ class Messages {
   }
 
   static public function item($type, $text) {
-    $items = _Session::get(self::SESSION_ITEMS_NAME, array());
-    $items[$type][] = $text;
-    _Session::set(self::SESSION_ITEMS_NAME, $items);
+    $item = array(
+      'type' => $type,
+      'text' => $text,
+    );
+
+    // set contextual fields
+    if (!is_null(self::$row)) {
+      $item['row'] = self::$row;
+      $item['prefix'] = self::$prefix;
+      // row status is status of last message
+      self::$row_statuses[self::$row] = $type;
+      if (!is_null(self::$field)) {
+        $item['field'] = self::$field;
+        // record field item
+        self::$field_items[self::$row][self::$field] = $item;
+      }
+    }
+    self::$items[$type][] = $item;
   }
 
   static public function messages() {
-    // gather non-used items and create a message for them
-    $items = _Session::get(self::SESSION_ITEMS_NAME, array());
-    if (is_array($items)) {
-      foreach($items as $type => $message_items) {
-        self::message($type, self::$headings[$type]);
-      }
-    }
-     
     // purge messages from session and return them
     $messages = _Session::get(self::SESSION_MESSAGES_NAME);
     _Session::remove(self::SESSION_MESSAGES_NAME);
     return $messages;
   }
 
-  static public function item_prefix($prefix) {
+  static public function row_status($row) {
+    return isset(self::$row_statuses[$row]) ? self::$row_statuses[$row] : '';
+  }
+
+  static public function field_status($row, $field) {
+    return isset(self::$field_items[$row][$field]['type']) ? self::$field_items[$row][$field]['type'] : '';
+  }
+
+  static public function field_message($row, $field) {
+    return isset(self::$field_items[$row][$field]['text']) ? self::$field_items[$row][$field]['text'] : '';
+  }
+
+  static public function item_row($row, $prefix = '') {
+    self::$row = $row;
     self::$prefix = $prefix;
+  }
+
+  static public function item_field($field) {
+    self::$field = $field;
   }
 
   static public function error($message, $text = null) {
@@ -75,7 +93,7 @@ class Messages {
   }
 
   static public function error_item($message) {
-    self::item('error', self::$prefix.$message);
+    self::item('error', $message);
   }
 
   static public function alert($message, $text = null) {
@@ -83,7 +101,7 @@ class Messages {
   }
 
   static public function alert_item($message) {
-    self::item('alert', self::$prefix.$message);
+    self::item('alert', $message);
   }
 
   static public function info($message, $text = null) {
@@ -91,7 +109,7 @@ class Messages {
   }
 
   static public function info_item($message) {
-    self::item('info', self::$prefix.$message);
+    self::item('info', $message);
   }
 
   static public function success($message, $text = null) {
@@ -99,20 +117,20 @@ class Messages {
   }
 
   static public function success_item($message) {
-    self::item('success', self::$prefix.$message);
+    self::item('success', $message);
   }
 
   static public function log($message) {
     // show debug information only in development system
     if (ini_get('display_errors')) {
-      self::item('log', $message);
+      self::message('log', null, $message);
     }
   }
 
   static public function debug($message) {
     // show debug information only in development system
     if (ini_get('display_errors')) {
-      self::item('debug', $message);
+      self::message('debug', null, $message);
     }
   }
 }
