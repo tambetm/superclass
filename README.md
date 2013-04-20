@@ -1,6 +1,6 @@
 # Superclass PHP Framework #
 
-Superclass is a modern and ultra-extensible PHP framework for database-centric applications. It makes use of database metadata to aid developer in creating common database forms and in validating data. Developer can customize standard functionality by subclassing framework classes. 
+Superclass is a modern and ultra-extensible PHP framework for database-centric applications. It makes use of database metadata to aid developer in creating common database forms and in validating data. Standard functionality can be customized by subclassing framework classes or creating declarative metadata files.
 
 Currently it supports only PostgreSQL, but support for other databases is only matter of writing drivers. The only requirement is that database must expose it's internals through [information schema][].
 
@@ -11,3 +11,5 @@ Superclass was inspired by [Oracle Forms][Forms] (database integration, standard
 [APEX]: http://www.oracle.com/technetwork/developer-tools/apex/index.html
 [CI]: http://ellislab.com/codeigniter
 [Qt]: http://qt-project.org/
+
+&copy; Tambet Matiisen, tambet.matiisen@gmail.com
