@@ -11,5 +11,3 @@ Superclass was inspired by [Oracle Forms][Forms] (database integration, standard
 [APEX]: http://www.oracle.com/technetwork/developer-tools/apex/index.html
 [CI]: http://ellislab.com/codeigniter
 [Qt]: http://qt-project.org/
-
-&copy; Tambet Matiisen, tambet.matiisen@gmail.com
