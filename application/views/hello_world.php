@@ -1,9 +1,7 @@
 <?php
 namespace views;
 
-use core\View;
-
-class HelloWorld extends View {
+class HelloWorld {
   public function title() {
     return 'My first app';
   }

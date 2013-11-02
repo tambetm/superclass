@@ -23,17 +23,12 @@ class Bootstrap extends HTML5Layout {
     $this->_script(array('src' => 'http://code.jquery.com/jquery.js'));
   }
 
-  public function body() {
-    $this->_body_content('div', array('class' => 'container', 'id' => 'content'));
-    parent::body();
+  public function body_scripts() {
+    $this->_script(array('src' => URL::base_path().'assets/js/bootstrap.min.js'));
   }
 
   public function body_content() {
-    $this->view->render();
-  }
-
-  public function body_scripts() {
-    $this->_script(array('src' => URL::base_path().'assets/js/bootstrap.min.js'));
+    $this->_content('div', array('class' => 'container', 'id' => 'content'));
   }
 
 }

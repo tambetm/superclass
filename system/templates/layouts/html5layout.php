@@ -43,8 +43,17 @@ class HTML5Layout extends Layout {
 
   public function body() {
     $this->body_scripts();
+    $this->body_content();
   }
 
   public function body_scripts() {
+  }
+
+  public function body_content() {
+    $this->content();
+  }
+
+  public function content() {
+    $this->view->render();
   }
 }

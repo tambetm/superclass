@@ -86,6 +86,6 @@ class Resolver {
     $class = TYPE_NAMESPACE.NAMESPACE_SEPARATOR.String::camelcase($column['data_type']);
     if (class_exists($class)) return $class;
 
-    throw new \InvalidArgumentException("Could not find class for field '$column[column_name]' in table '$column[table_name]'");
+    throw new \InvalidArgumentException("Could not find class for field '$column[column_name]' with type '$column[data_type]' in table '$column[table_name]'");
   }
 }

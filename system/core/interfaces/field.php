@@ -8,9 +8,12 @@ interface Field {
   const KIND_BOOLEAN = 'boolean';
   const KIND_DATE = 'date';
   const KIND_TIME = 'time';
+  const KIND_TIMETZ = 'timetz';
   const KIND_DATETIME = 'datetime';
+  const KIND_DATETIMETZ = 'datetimetz';
   const KIND_ENUM = 'enum';
   const KIND_LOOKUP = 'lookup';
+  const KIND_FILE = 'file';
   
   public function __construct($column, $model);
 

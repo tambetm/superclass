@@ -43,10 +43,10 @@ class Simple extends Bootstrap {
     $menu->render();
   }
 
-  public function body_content() {
+  public function content() {
     $this->messages();
     $this->_title('h1');
-    $this->content();
+    parent::content();
   }
 
   public function primary_menu() {
@@ -57,9 +57,5 @@ class Simple extends Bootstrap {
   public function messages() {
     $messages = new Messages();
     $messages->render();
-  }
-
-  public function content() {
-    $this->view->render();
   }
 }

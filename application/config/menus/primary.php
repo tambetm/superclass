@@ -1,7 +1,7 @@
 <?php
 $config['menu'] = array(
-  'yhistud/' => _('Ühistud'),
-  'tegevused/' => _('Tegevused'),
-  'lepingud/' => _('Lepingud'),
+  'test/table' => _('Table'),
+  'test/table_edit' => _('Editable table'),
+  'test/add_new' => _('Add new'),
 );
 $config['attributes']['class'] = 'nav nav-tabs';

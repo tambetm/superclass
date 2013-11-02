@@ -8,15 +8,8 @@ class Text extends String {
   public function control($name, $default = '', $attrs = array()) {
     $attributes = array(
       'name' => $name,
-      'type' => null,
-      'value' => null,
     );
-    parent::control($name, $default, self::merge_attributes($attributes, $attrs));
-  }
-
-  public function _input() {
-    // get all the attributes assigned by parent, but use textarea instead
-    call_user_func_array(array($this, '_textarea'), func_get_args());
+    $this->_textarea(self::merge_attributes($attributes, $attrs), $default);
   }
 
   public function kind() {
